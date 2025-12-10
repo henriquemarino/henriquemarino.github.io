@@ -8,14 +8,12 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts'
   ],
 
-  // Configuração para GitHub Pages
-  ssr: false,
+  ssr: true,
 
   app: {
-    // Se seu repo for username.github.io, deixe baseURL como '/'
-    // Se for username.github.io/repo-name, descomente e configure:
-    // baseURL: '/portfolio/',
 
+    baseURL: process.env.NODE_ENV === 'production' ? '/portfolio/' : '/',
+    buildAssetsDir: 'assets',
     head: {
       title: 'Henrique Marino - Software Engineer',
       htmlAttrs: {
@@ -40,6 +38,10 @@ export default defineNuxtConfig({
         }
       ]
     }
+  },
+
+  nitro: {
+    preset: 'github_pages'
   },
 
   googleFonts: {
