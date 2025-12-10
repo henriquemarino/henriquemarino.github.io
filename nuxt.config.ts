@@ -13,7 +13,7 @@ export default defineNuxtConfig({
 
   app: {
 
-    baseURL: process.env.NODE_ENV === 'production' ? '/portfolio/' : '/',
+    baseURL: '/',
     //buildAssetsDir: 'assets',
     head: {
       title: 'Henrique Marino - Software Engineer',
