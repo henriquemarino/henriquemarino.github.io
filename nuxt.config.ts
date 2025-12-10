@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   app: {
 
     baseURL: process.env.NODE_ENV === 'production' ? '/portfolio/' : '/',
-    buildAssetsDir: 'assets',
+    //buildAssetsDir: 'assets',
     head: {
       title: 'Henrique Marino - Software Engineer',
       htmlAttrs: {
@@ -52,7 +52,8 @@ export default defineNuxtConfig({
     display: 'swap'
   },
 
-  css: [
-    '~/assets/css/main.css'
-  ]
+  tailwindcss: {
+    cssPath: '~/assets/css/main.css',
+    configPath: 'tailwind.config.ts'
+  }
 })
