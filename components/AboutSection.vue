@@ -12,9 +12,14 @@
           <div class="md:w-1/2 flex justify-center">
             <div class="relative max-w-sm w-full">
               <div class="absolute -inset-3 sm:-inset-4 border-2 border-secondary border-opacity-30 rounded-lg"></div>
-              <img
-                src="../assets/img/profile-picture.jpeg"
+              <NuxtImg
+                src="/img/profile-picture.jpeg"
                 alt="Henrique Marino"
+                width="300"
+                height="300"
+                quality="90"
+                loading="lazy"
+                placeholder
                 class="rounded-xl relative z-10 w-full h-auto object-cover shadow-lg"
               />
             </div>
