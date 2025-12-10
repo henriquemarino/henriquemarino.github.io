@@ -8,7 +8,7 @@
           </p>
         </div>
 
-        <div class="flex space-x-6">
+        <!-- <div class="flex space-x-6">
           <a
             href="#"
             class="text-text-light hover:text-highlight transition-colors"
@@ -21,7 +21,7 @@
           >
             {{ t('footer.terms') }}
           </a>
-        </div>
+        </div> -->
       </div>
     </div>
   </footer>

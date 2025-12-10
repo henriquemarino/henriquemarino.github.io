@@ -56,9 +56,9 @@ export const useLanguage = () => {
       'contact.form.messagePlaceholder': 'Sua mensagem',
       'contact.form.button': 'Enviar Mensagem',
 
-      'footer.copyright': '© 2025 Henrique Marino - Software Engineer. Todos os direitos reservados.',
-      'footer.privacy': 'Política de Privacidade',
-      'footer.terms': 'Termos de Uso'
+      'footer.copyright': '© 2025 Henrique Marino',
+      /* 'footer.privacy': 'Política de Privacidade',
+      'footer.terms': 'Termos de Uso' */
     },
     en: {
       'nav.about': 'About',
@@ -114,9 +114,9 @@ export const useLanguage = () => {
       'contact.form.messagePlaceholder': 'Your message',
       'contact.form.button': 'Send Message',
 
-      'footer.copyright': '© 2025 Henrique Marino - Software Engineer. All rights reserved.',
-      'footer.privacy': 'Privacy Policy',
-      'footer.terms': 'Terms of Use'
+      'footer.copyright': '© 2025 Henrique Marino',
+      /* 'footer.privacy': 'Privacy Policy',
+      'footer.terms': 'Terms of Use' */
     }
   }
 
