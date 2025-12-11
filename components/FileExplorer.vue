@@ -5,7 +5,8 @@
       <div class="window-title">{{ t('skills.explorerTitle') }}</div>
       <div class="explorer-path">
         <i class="fas fa-folder"></i>
-        <span>/habilidades-tecnicas</span>
+        <span class="hidden sm:inline">/habilidades-tecnicas</span>
+        <span class="sm:hidden">/skills</span>
       </div>
     </div>
 
@@ -19,13 +20,14 @@
           @click="setActiveFolder(folder.id)"
         >
           <i class="fas fa-folder folder-icon"></i>
-          <span>{{ t(folder.translationKey) }}</span>
+          <span class="folder-label">{{ t(folder.translationKey) }}</span>
         </div>
       </div>
 
       <div class="content-area">
         <div class="current-directory">
-          /habilidades-tecnicas/{{ currentFolder.id }}
+          <span class="hidden sm:inline">/habilidades-tecnicas/{{ currentFolder.id }}</span>
+          <span class="sm:hidden">/{{ currentFolder.id }}</span>
         </div>
 
         <div class="file-grid">
