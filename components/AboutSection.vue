@@ -42,7 +42,9 @@
                   <i class="fas fa-award text-highlight text-sm sm:text-base"></i>
                 </div>
                 <div>
-                  <p class="font-semibold text-sm sm:text-base">3+ Anos</p>
+                  <p class="font-semibold text-sm sm:text-base">
+                    {{ t('about.yearsCount') }} {{ t('about.yearsLabel') }}
+                  </p>
                   <p class="text-xs sm:text-sm text-text-light">
                     {{ t('about.experience') }}
                   </p>
@@ -54,7 +56,9 @@
                   <i class="fas fa-project-diagram text-highlight text-sm sm:text-base"></i>
                 </div>
                 <div>
-                  <p class="font-semibold text-sm sm:text-base">30+ Projetos</p>
+                  <p class="font-semibold text-sm sm:text-base">
+                    {{ t('about.projectsCount') }} {{ t('about.projectsLabel') }}
+                  </p>
                   <p class="text-xs sm:text-sm text-text-light">
                     {{ t('about.completed') }}
                   </p>
