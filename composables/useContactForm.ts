@@ -26,7 +26,7 @@ export const useContactForm = () => {
 
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      alert('Mensagem enviada com sucesso! Entrarei em contato em breve.')
+      alert('Funcionalidade em desenvolvimento. Por enquanto, entre em contato pelo linkedin ou e-mail!')
 
       formData.name = ''
       formData.email = ''
