@@ -9,25 +9,25 @@ export interface Project {
 export const useProjects = () => {
   const projects: Project[] = [
     {
-      id: 'ecommerce',
+      id: 'Rehab.AI',
       titleKey: 'projects.project1.title',
       nameKey: 'projects.project1.name',
       descriptionKey: 'projects.project1.description',
-      technologies: ['Java', 'Spring Boot', 'MySQL', 'Docker']
+      technologies: ['Java', 'Spring Boot', 'PostgreSQL', 'RabbitMQ', 'Docker', 'Textract', 'Bedrock', 'S3']
     },
     {
-      id: 'analytics',
+      id: 'Notification',
       titleKey: 'projects.project2.title',
       nameKey: 'projects.project2.name',
       descriptionKey: 'projects.project2.description',
-      technologies: ['Python', 'Elasticsearch', 'Redis', 'AWS']
+      technologies: ['Java', 'Spring Boot', 'RabbitMQ', 'Docker', 'AWS', 'SES', 'SNS']
     },
     {
       id: 'authentication',
       titleKey: 'projects.project3.title',
       nameKey: 'projects.project3.name',
       descriptionKey: 'projects.project3.description',
-      technologies: ['Node.js', 'MongoDB', 'JWT', 'OAuth2']
+      technologies: ['Java', 'Spring Security', 'JWT', 'OAuth2', 'PostgreSQL']
     }
   ]
 
