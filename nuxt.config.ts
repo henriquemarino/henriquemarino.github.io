@@ -6,7 +6,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/image',
     '@nuxtjs/tailwindcss',
-    '@nuxtjs/google-fonts'
+    '@nuxtjs/google-fonts',
+    '@nuxtjs/sitemap'
   ],
 
   ssr: true,
