@@ -21,8 +21,7 @@ export const useFileExplorer = () => {
       files: [
         { icon: 'fab fa-java', name: 'Java' },
         { icon: 'fab fa-js-square', name: 'JavaScript' },
-        { icon: 'fab fa-node-js', name: 'Node.js' },
-        { icon: 'fab fa-golang', name: 'Go' },
+        //{ icon: 'fab fa-golang', name: 'Go' },
         { icon: 'fab fa-brands fa-node', name: 'TypeScript' }
       ]
     },
