@@ -25,7 +25,7 @@ export default {
         border: 'rgb(var(--color-border) / <alpha-value>)'
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+        mono: ['var(--font-jetbrains-mono)', 'JetBrains Mono', 'Courier New', 'monospace'],
         sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
       },
       boxShadow: {

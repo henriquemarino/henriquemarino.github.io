@@ -1,11 +1,19 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import { JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { RouteTransition } from '@/components/layout/RouteTransition'
 import { ThemeProvider, ThemeScript } from '@/components/theme/ThemeProvider'
 import { absoluteUrl, siteConfig, withBasePath } from '@/lib/site'
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -82,7 +90,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <html lang="pt-BR" className="dark" suppressHydrationWarning>
+    <html lang="pt-BR" className={`${jetbrainsMono.variable} dark`} suppressHydrationWarning>
       <head>
         <ThemeScript />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
