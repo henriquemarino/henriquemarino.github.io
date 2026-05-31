@@ -22,5 +22,8 @@ export const mdxComponents: MDXComponents = {
     )
   },
   Callout,
-  Mermaid: MermaidDiagram,
+  // Wrap the client component in a server component so next-mdx-remote/rsc
+  // serializes the `chart` prop across the RSC boundary. Mapping the client
+  // component directly drops the prop, leaving chart undefined at runtime.
+  Mermaid: ({ chart }: { chart: string }) => <MermaidDiagram chart={chart} />,
 }
