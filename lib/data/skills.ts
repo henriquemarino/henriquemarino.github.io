@@ -15,6 +15,7 @@ import {
   AwsIcon,
   DockerIcon,
   DynamoDbIcon,
+  GoIcon,
   HibernateIcon,
   JavaIcon,
   JenkinsIcon,
@@ -36,7 +37,7 @@ export type SkillFile = {
   name: string
   icon: SkillIcon
   extension: string
-  level: 'core' | 'strong' | 'working'
+  level: 'core' | 'strong' | 'working' | 'planned'
   description: string
   usage: string[]
 }
@@ -79,6 +80,14 @@ export const skillFolders: SkillFolder[] = [
         level: 'strong',
         description: 'Modelagem, consultas, índices e análise de performance em bancos relacionais.',
         usage: ['PostgreSQL', 'MySQL', 'query tuning'],
+      },
+      {
+        name: 'Go',
+        icon: GoIcon,
+        extension: '.go',
+        level: 'planned',
+        description: 'Ainda não estudei. Está nos meus planos aprender Go para serviços backend de alta performance e ferramentas de linha de comando.',
+        usage: ['estudo planejado', 'concorrência', 'serviços backend'],
       },
     ],
   },
@@ -256,4 +265,5 @@ export const levelLabels = {
   core: 'Core',
   strong: 'Forte',
   working: 'Em uso',
+  planned: 'Planejado',
 } as const
