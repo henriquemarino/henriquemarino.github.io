@@ -3,11 +3,18 @@
 import { useEffect, useId, useRef, useState } from 'react'
 
 // NOTE (for future maintainers / AI agents):
-// This renders Mermaid diagrams on the client, lazily — the (heavy) `mermaid`
-// dependency is only fetched/executed when the diagram nears the viewport
-// (see the IntersectionObserver below). Diagrams are authored as ```mermaid
-// fenced blocks and turned into <Mermaid chart="..."> by the `remarkMermaid`
-// plugin in lib/content/mdx.tsx.
+// Mermaid diagrams are rendered on the client, lazily and one-at-a-time. They
+// are authored as ```mermaid fenced blocks and turned into <Mermaid chart="...">
+// by the `remarkMermaid` plugin in lib/content/mdx.tsx.
+//
+// This is built to scale to many diagrams (per page and across the project):
+//   1. `mermaid` is imported and the import is shared, so it is fetched once per
+//      session regardless of how many diagrams exist (module-level singleton).
+//   2. Renders are serialized through a shared queue. mermaid keeps global/
+//      shared state internally and is not safe to call concurrently; the queue
+//      also avoids a main-thread burst when several diagrams are visible at once.
+//   3. Each diagram only renders when it nears the viewport (IntersectionObserver),
+//      so off-screen diagrams cost nothing until scrolled to.
 //
 // ALTERNATIVE — build-time pre-render to static SVG (NOT used here, on purpose):
 //   Render each diagram to SVG at build (e.g. in scripts/generate-static-assets
@@ -16,10 +23,32 @@ import { useEffect, useId, useRef, useState } from 'react'
 //   removes runtime render errors.
 //   Trade-off / why it was skipped: mermaid needs a DOM, so build-time rendering
 //   requires Puppeteer/Playwright (downloads Chromium) — a heavy, flaky build
-//   dependency in CI (a failed Chromium download breaks the deploy). For the few
-//   diagrams here, lazy client-side rendering is the better cost/benefit.
-//   Revisit the pre-render approach if diagram count grows a lot or if the
-//   client mermaid bundle becomes a measurable performance problem.
+//   dependency in CI (a failed Chromium download breaks the deploy). The runtime
+//   setup above is enough for normal diagram counts; revisit pre-render only if
+//   you have very many heavy diagrams or the mermaid bundle becomes a measurable
+//   performance problem.
+
+type MermaidApi = Awaited<typeof import('mermaid')>['default']
+
+// (1) Load mermaid once and share the promise across all diagram instances.
+let mermaidPromise: Promise<MermaidApi> | null = null
+function loadMermaid(): Promise<MermaidApi> {
+  mermaidPromise ??= import('mermaid').then((mod) => mod.default)
+  return mermaidPromise
+}
+
+// (2) Serialize renders: chain each task after the previous one, regardless of
+// whether the previous succeeded or failed, so renders never overlap.
+let renderChain: Promise<unknown> = Promise.resolve()
+function queueRender<T>(task: () => Promise<T>): Promise<T> {
+  const result = renderChain.then(task, task)
+  renderChain = result.then(
+    () => undefined,
+    () => undefined,
+  )
+  return result
+}
+
 export function MermaidDiagram({ chart }: { chart: string }) {
   const id = useId().replace(/:/g, '')
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -28,8 +57,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
   const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined')
   const [error, setError] = useState<string | null>(null)
 
-  // Defer everything until the diagram is near the viewport, so mermaid (a
-  // large dependency) is only fetched and executed when it's actually needed.
+  // (3) Defer everything until the diagram is near the viewport.
   useEffect(() => {
     const element = wrapperRef.current
     if (!element || typeof IntersectionObserver === 'undefined') return
@@ -53,27 +81,27 @@ export function MermaidDiagram({ chart }: { chart: string }) {
 
     let mounted = true
 
-    async function render() {
-      try {
-        const mermaid = (await import('mermaid')).default
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: document.documentElement.classList.contains('dark') ? 'dark' : 'neutral',
-          securityLevel: 'strict',
-        })
+    queueRender(async () => {
+      const mermaid = await loadMermaid()
+      if (!mounted) return
 
-        const result = await mermaid.render(`mermaid-${id}`, chart)
-        if (mounted && containerRef.current) {
-          containerRef.current.innerHTML = result.svg
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err.message : 'Erro ao renderizar diagrama Mermaid.')
-        }
+      // initialize is cheap and lets each render pick up the current theme; it
+      // is safe here because the queue guarantees no concurrent init/render.
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'neutral',
+        securityLevel: 'strict',
+      })
+
+      const result = await mermaid.render(`mermaid-${id}`, chart)
+      if (mounted && containerRef.current) {
+        containerRef.current.innerHTML = result.svg
       }
-    }
-
-    render()
+    }).catch((err) => {
+      if (mounted) {
+        setError(err instanceof Error ? err.message : 'Erro ao renderizar diagrama Mermaid.')
+      }
+    })
 
     return () => {
       mounted = false
