@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Code2, Mail, MapPin, Network } from 'lucide-react'
+import { Mail, MapPin } from 'lucide-react'
+import { GithubIcon, LinkedinIcon } from '@/components/ui/BrandIcons'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { siteConfig } from '@/lib/site'
 
@@ -10,7 +11,7 @@ export function ContactSection({ compact = false }: { compact?: boolean }) {
         <SectionHeading
           eyebrow="contact.sh"
           title="Contato"
-          description="Sem backend no GitHub Pages: contato direto, previsível e sem formulário falso."
+          description="Quer entrar em contato? Sinta-se à vontade para me enviar um e-mail ou me encontrar nas redes sociais!"
         />
 
         <div className="grid gap-6 md:grid-cols-3">
@@ -20,12 +21,12 @@ export function ContactSection({ compact = false }: { compact?: boolean }) {
             <p className="text-sm text-text-light">{siteConfig.email}</p>
           </Link>
           <Link href={siteConfig.github} target="_blank" className="rounded-lg border border-secondary/30 bg-light/60 p-5 hover:border-highlight/50">
-            <Code2 className="mb-4 h-7 w-7 text-highlight" aria-hidden="true" />
+            <GithubIcon className="mb-4 h-7 w-7 text-highlight" />
             <h3 className="mb-2 font-semibold">GitHub</h3>
             <p className="text-sm text-text-light">@{siteConfig.handle}</p>
           </Link>
           <Link href={siteConfig.linkedin} target="_blank" className="rounded-lg border border-secondary/30 bg-light/60 p-5 hover:border-highlight/50">
-            <Network className="mb-4 h-7 w-7 text-highlight" aria-hidden="true" />
+            <LinkedinIcon className="mb-4 h-7 w-7 text-highlight" />
             <h3 className="mb-2 font-semibold">LinkedIn</h3>
             <p className="text-sm text-text-light">henrique-cpp</p>
           </Link>
