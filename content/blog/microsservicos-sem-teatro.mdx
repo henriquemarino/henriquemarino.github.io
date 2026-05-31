@@ -25,13 +25,14 @@ Se o time ainda não consegue operar bem um monólito modular, provavelmente vai
 
 ## Um fluxo comum
 
-<Mermaid chart={`flowchart LR
+```mermaid
+flowchart LR
   A[Pedido criado] --> B[Order Service]
   B --> C[Evento: OrderCreated]
   C --> D[Payment Service]
   C --> E[Notification Service]
   D --> F[Evento: PaymentApproved]
-`} />
+```
 
 ## Checklist antes de separar
 
