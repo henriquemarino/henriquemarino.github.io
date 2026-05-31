@@ -3,10 +3,10 @@ import { siteConfig } from '@/lib/site'
 export const profile = {
   name: siteConfig.name,
   role: 'Software Engineer',
-  headline: 'Backend, arquitetura e sistemas que continuam de pé quando o tráfego aperta.',
+  headline: 'Desenvolvedor backend. Gosto de sistemas simples, bem modelados e confiáveis.',
   summary:
-    'Sou desenvolvedor backend com foco em Java, Spring Boot, Node.js, PostgreSQL, Redis, Docker, microsserviços e arquitetura de software. Gosto de transformar problemas complexos em serviços previsíveis, observáveis e fáceis de evoluir.',
-  availability: 'Disponível para conversas técnicas e oportunidades selecionadas',
+    'Desenvolvedor backend com foco em Java, Spring Boot e Node.js, além de PostgreSQL, Redis e Docker. Venho construindo uma base técnica desde 2017 e gosto de entender bem um problema antes de sair codando. Prefiro soluções simples, que continuem fáceis de manter depois.',
+  availability: 'Aberto a novas oportunidades e conversas técnicas',
   experienceYears: '3+',
   completedProjects: '20+',
   resume: [
@@ -14,19 +14,19 @@ export const profile = {
       period: '2022 - atual',
       title: 'Engenharia Backend',
       description:
-        'Construção de APIs, microsserviços, integrações assíncronas, modelagem relacional e pipelines de entrega com foco em confiabilidade.',
+        'Construo APIs e serviços backend, com atenção à modelagem dos dados e à confiabilidade do que vai pra produção.',
     },
     {
       period: 'Stack principal',
       title: 'Java, Spring Boot, Node.js, PostgreSQL, Redis e Docker',
       description:
-        'Experiência prática em serviços backend, bancos transacionais, cache, mensageria, conteinerização e desenho de componentes para crescimento.',
+        'Trabalho no dia a dia com serviços backend, bancos relacionais, cache, mensageria e containers.',
     },
     {
       period: 'Modo de trabalho',
       title: 'Arquitetura pragmática e aprendizado contínuo',
       description:
-        'Valorizo código simples, contratos explícitos, métricas úteis, documentação objetiva e colaboração com pessoas técnicas e não técnicas.',
+        'Prezo por código simples e bem documentado, e por explicar decisões técnicas de um jeito que pessoas não-técnicas entendam.',
     },
   ],
   links: {

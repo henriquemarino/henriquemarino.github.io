@@ -10,8 +10,8 @@ export function ProjectsSection({ projects }: { projects: Project[] }) {
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           eyebrow="projects/"
-          title="Projetos como conteúdo principal"
-          description="Cada projeto aponta para uma página dedicada com contexto, decisões de arquitetura, stack e aprendizados."
+          title="Projetos em destaque"
+          description="Cada projeto tem uma página com o contexto, a stack e as principais decisões técnicas."
         />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

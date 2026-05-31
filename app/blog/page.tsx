@@ -39,7 +39,7 @@ export default function BlogPage() {
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-highlight">blog/</p>
           <h1 className="mb-4 text-3xl font-bold sm:text-4xl">Artigos técnicos</h1>
           <p className="max-w-3xl text-text-light">
-            Busca local, tags, MDX, syntax highlighting, Mermaid, tabelas e componentes React prontos para posts de engenharia.
+            Notas e estudos sobre backend, arquitetura e as tecnologias que uso no dia a dia.
           </p>
         </header>
 

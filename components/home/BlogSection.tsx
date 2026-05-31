@@ -11,7 +11,7 @@ export function BlogSection({ posts }: { posts: BlogPost[] }) {
         <SectionHeading
           eyebrow="blog/"
           title="Artigos técnicos"
-          description="Espaço para documentar projetos, decisões, aprendizados e engenharia de backend sem perder o feeling de workspace."
+          description="Onde escrevo sobre backend, arquitetura e decisões técnicas do dia a dia."
         />
 
         <div className="grid gap-5 md:grid-cols-3">

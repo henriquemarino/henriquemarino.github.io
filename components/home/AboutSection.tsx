@@ -11,8 +11,8 @@ export function AboutSection({ full = false }: { full?: boolean }) {
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           eyebrow="about.md"
-          title={full ? 'About + currículo' : 'Sobre mim'}
-          description="Uma visão direta de como penso backend, produto e evolução técnica."
+          title={full ? 'Sobre mim + currículo' : 'Sobre mim'}
+          description="Quem sou, como trabalho e a stack que uso no dia a dia."
         />
 
         <div className="grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:items-start">
@@ -34,7 +34,7 @@ export function AboutSection({ full = false }: { full?: boolean }) {
             <h3 className="mb-4 text-2xl font-semibold">Olá, sou Henrique Marino</h3>
             <p className="mb-4 leading-relaxed text-text-light">{profile.summary}</p>
             <p className="mb-8 leading-relaxed text-text-light">
-              Meu foco é construir sistemas backend com contratos claros, boa modelagem de dados, observabilidade suficiente e decisões arquiteturais que cabem no estágio real do produto.
+              No dia a dia, gosto de caprichar na modelagem de dados, manter as APIs previsíveis e não complicar a arquitetura além do que o projeto precisa. Também curto estudar coisas novas por conta própria. Atualmente, estou de olho em Go.
             </p>
 
             <div className="mb-8 grid gap-4 sm:grid-cols-2">

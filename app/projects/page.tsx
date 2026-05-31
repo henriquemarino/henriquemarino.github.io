@@ -24,7 +24,7 @@ export default function ProjectsPage() {
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-highlight">projects/</p>
           <h1 className="mb-4 text-3xl font-bold sm:text-4xl">Projetos principais</h1>
           <p className="max-w-3xl text-text-light">
-            Projetos deixam de ser apenas cards: cada item funciona como um README técnico navegável, com contexto, arquitetura e aprendizados.
+            Estudos de caso dos meus projetos: o contexto, a stack e as decisões técnicas por trás de cada um.
           </p>
         </header>
 

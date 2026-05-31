@@ -2,7 +2,7 @@
   {
     "type": "post",
     "title": "Índices PostgreSQL na prática: menos magia, mais plano de execução",
-    "description": "Uma introdução pragmática para pensar em índices a partir de padrões de consulta e EXPLAIN.",
+    "description": "Como pensar em índices a partir dos padrões de consulta e do EXPLAIN, sem criar índice à toa.",
     "href": "/blog/postgresql-indices-na-pratica",
     "tags": [
       "PostgreSQL",
@@ -28,7 +28,7 @@
   {
     "type": "post",
     "title": "Microsserviços sem teatro: onde a arquitetura começa a pagar a conta",
-    "description": "Uma leitura pragmática sobre quando microsserviços ajudam, quando atrapalham e quais sinais técnicos observar.",
+    "description": "Quando microsserviços ajudam, quando atrapalham e que sinais observar antes de dividir um sistema.",
     "href": "/blog/microsservicos-sem-teatro",
     "tags": [
       "Arquitetura",

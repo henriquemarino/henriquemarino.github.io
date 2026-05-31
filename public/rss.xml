@@ -10,7 +10,7 @@
       <link>https://henriquemarino.github.io/blog/postgresql-indices-na-pratica/</link>
       <guid>https://henriquemarino.github.io/blog/postgresql-indices-na-pratica/</guid>
       <pubDate>Fri, 20 Feb 2026 03:00:00 GMT</pubDate>
-      <description>Uma introdução pragmática para pensar em índices a partir de padrões de consulta e EXPLAIN.</description>
+      <description>Como pensar em índices a partir dos padrões de consulta e do EXPLAIN, sem criar índice à toa.</description>
     </item>
     <item>
       <title>Cache-aside com Redis em APIs backend</title>
@@ -24,7 +24,7 @@
       <link>https://henriquemarino.github.io/blog/microsservicos-sem-teatro/</link>
       <guid>https://henriquemarino.github.io/blog/microsservicos-sem-teatro/</guid>
       <pubDate>Sun, 18 Jan 2026 03:00:00 GMT</pubDate>
-      <description>Uma leitura pragmática sobre quando microsserviços ajudam, quando atrapalham e quais sinais técnicos observar.</description>
+      <description>Quando microsserviços ajudam, quando atrapalham e que sinais observar antes de dividir um sistema.</description>
     </item>
   </channel>
 </rss>

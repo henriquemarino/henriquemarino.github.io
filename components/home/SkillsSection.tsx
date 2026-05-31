@@ -8,7 +8,7 @@ export function SkillsSection() {
         <SectionHeading
           eyebrow="workspace"
           title="Explorador de habilidades"
-          description="A metáfora de arquivos continua central: skills como diretórios, tecnologias como arquivos e contexto técnico no painel lateral."
+          description="Minhas principais tecnologias, organizadas por área. Clique numa pasta para ver onde uso cada uma."
         />
         <FileExplorer />
       </div>
