@@ -1,0 +1,110 @@
+[
+  {
+    "type": "post",
+    "title": "Índices PostgreSQL na prática: menos magia, mais plano de execução",
+    "description": "Uma introdução pragmática para pensar em índices a partir de padrões de consulta e EXPLAIN.",
+    "href": "/blog/postgresql-indices-na-pratica",
+    "tags": [
+      "PostgreSQL",
+      "SQL",
+      "Performance"
+    ],
+    "date": "2026-02-20",
+    "readingTime": "1 min de leitura"
+  },
+  {
+    "type": "post",
+    "title": "Cache-aside com Redis em APIs backend",
+    "description": "Como aplicar cache-aside com Redis sem esconder bugs de consistência ou criar invalidação impossível.",
+    "href": "/blog/redis-cache-aside",
+    "tags": [
+      "Redis",
+      "Backend",
+      "Performance"
+    ],
+    "date": "2026-02-02",
+    "readingTime": "1 min de leitura"
+  },
+  {
+    "type": "post",
+    "title": "Microsserviços sem teatro: onde a arquitetura começa a pagar a conta",
+    "description": "Uma leitura pragmática sobre quando microsserviços ajudam, quando atrapalham e quais sinais técnicos observar.",
+    "href": "/blog/microsservicos-sem-teatro",
+    "tags": [
+      "Arquitetura",
+      "Microsserviços",
+      "Backend"
+    ],
+    "date": "2026-01-18",
+    "readingTime": "2 min de leitura"
+  },
+  {
+    "type": "project",
+    "title": "Rehab.AI",
+    "description": "Plataforma de reabilitação assistida por IA com microsserviços, eventos e geração de planos personalizados.",
+    "href": "/projects/rehab-ai",
+    "tags": [
+      "Java",
+      "Spring Boot",
+      "PostgreSQL",
+      "RabbitMQ",
+      "AWS",
+      "IA"
+    ],
+    "date": "2025-12-15",
+    "stack": [
+      "Java",
+      "Spring Boot",
+      "PostgreSQL",
+      "RabbitMQ",
+      "Docker",
+      "Textract",
+      "Bedrock",
+      "S3"
+    ]
+  },
+  {
+    "type": "project",
+    "title": "Notification Service",
+    "description": "Microsserviço para envio de notificações por e-mail e SMS usando filas, templates e serviços AWS.",
+    "href": "/projects/notification-service",
+    "tags": [
+      "Java",
+      "Spring Boot",
+      "RabbitMQ",
+      "AWS",
+      "Microsserviços"
+    ],
+    "date": "2025-11-20",
+    "stack": [
+      "Java",
+      "Spring Boot",
+      "RabbitMQ",
+      "Docker",
+      "AWS SES",
+      "AWS SNS"
+    ]
+  },
+  {
+    "type": "project",
+    "title": "Authentication Service",
+    "description": "Serviço de autenticação e autorização com JWT, OAuth2 e Spring Security.",
+    "href": "/projects/authentication-service",
+    "tags": [
+      "Java",
+      "Spring Security",
+      "JWT",
+      "OAuth2",
+      "PostgreSQL"
+    ],
+    "date": "2025-10-05",
+    "stack": [
+      "Java",
+      "Spring Boot",
+      "Spring Security",
+      "JWT",
+      "OAuth2",
+      "PostgreSQL"
+    ]
+  }
+]

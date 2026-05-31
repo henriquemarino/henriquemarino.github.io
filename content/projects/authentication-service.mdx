@@ -1,0 +1,40 @@
+---
+title: "Authentication Service"
+description: "Serviço de autenticação e autorização com JWT, OAuth2 e Spring Security."
+date: "2025-10-05"
+tags: ["Java", "Spring Security", "JWT", "OAuth2", "PostgreSQL"]
+stack: ["Java", "Spring Boot", "Spring Security", "JWT", "OAuth2", "PostgreSQL"]
+status: "em desenvolvimento"
+role: "Backend Engineer"
+featured: false
+impact: "Consolida autenticação e emissão de tokens para reduzir duplicação entre serviços."
+published: true
+---
+
+## Objetivo
+
+O Authentication Service concentra cadastro, login, refresh token e autorização básica em uma API dedicada. A proposta é manter os serviços de domínio menores e com uma forma consistente de validar identidade.
+
+## Decisões
+
+- JWT para autenticação stateless entre clientes e APIs.
+- Refresh tokens persistidos para revogação e rotação.
+- Spring Security para filtros, providers e políticas de autorização.
+- PostgreSQL para usuários, sessões e auditoria.
+
+<Callout type="warning" title="Trade-off">
+JWT simplifica chamadas entre serviços, mas exige cuidado com expiração, rotação de chaves e revogação.
+</Callout>
+
+```java
+@Bean
+SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/auth/**").permitAll()
+            .anyRequest().authenticated()
+        )
+        .build();
+}
+```

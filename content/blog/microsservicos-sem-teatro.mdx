@@ -1,0 +1,53 @@
+---
+title: "Microsserviços sem teatro: onde a arquitetura começa a pagar a conta"
+description: "Uma leitura pragmática sobre quando microsserviços ajudam, quando atrapalham e quais sinais técnicos observar."
+excerpt: "Microsserviços não são um selo de maturidade. Eles só começam a compensar quando isolamento, deploy independente e autonomia reduzem mais complexidade do que criam."
+date: "2026-01-18"
+tags: ["Arquitetura", "Microsserviços", "Backend"]
+featured: true
+published: true
+---
+
+Microsserviços não são um selo de maturidade. Eles são uma troca: você compra autonomia e isolamento pagando com distribuição, observabilidade, contratos, deploy, latência e dados mais difíceis de coordenar.
+
+<Callout type="info" title="Regra prática">
+Se o time ainda não consegue operar bem um monólito modular, provavelmente vai sofrer para operar cinco serviços distribuídos.
+</Callout>
+
+## Sinais de que pode fazer sentido
+
+| Sinal | Por que importa |
+| --- | --- |
+| Domínios com ciclos de mudança diferentes | Deploy independente reduz espera entre times |
+| Escala desigual | Um serviço quente pode crescer sem escalar tudo |
+| Responsabilidades claras | Fronteiras reduzem acoplamento real |
+| Necessidade de isolamento | Falhas ficam mais contidas |
+
+## Um fluxo comum
+
+<Mermaid chart={`flowchart LR
+  A[Pedido criado] --> B[Order Service]
+  B --> C[Evento: OrderCreated]
+  C --> D[Payment Service]
+  C --> E[Notification Service]
+  D --> F[Evento: PaymentApproved]
+`} />
+
+## Checklist antes de separar
+
+- O domínio tem linguagem e regras próprias?
+- Existe dono claro para o serviço?
+- O contrato pode ser versionado?
+- O time consegue monitorar fila, latência, erro e retry?
+- Há estratégia para consistência eventual?
+
+```java
+public record OrderCreatedEvent(
+    UUID orderId,
+    UUID customerId,
+    BigDecimal total,
+    Instant occurredAt
+) {}
+```
+
+Arquitetura boa é menos sobre parecer sofisticada e mais sobre tornar o próximo incidente mais fácil de entender.

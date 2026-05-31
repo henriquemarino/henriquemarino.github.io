@@ -6,12 +6,17 @@
 .cache
 dist
 
+# Next.js dev/build outputs
+.next
+out
+
 # Node dependencies
 node_modules
 
 # Logs
 logs
 *.log
+tsconfig.tsbuildinfo
 
 # Misc
 .DS_Store

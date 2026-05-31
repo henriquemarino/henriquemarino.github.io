@@ -1,0 +1,51 @@
+---
+title: "Notification Service"
+description: "Microsserviço para envio de notificações por e-mail e SMS usando filas, templates e serviços AWS."
+date: "2025-11-20"
+tags: ["Java", "Spring Boot", "RabbitMQ", "AWS", "Microsserviços"]
+stack: ["Java", "Spring Boot", "RabbitMQ", "Docker", "AWS SES", "AWS SNS"]
+status: "em desenvolvimento"
+role: "Backend Engineer"
+featured: true
+impact: "Centraliza envio de mensagens e evita que serviços de negócio conheçam detalhes de provedores externos."
+published: true
+---
+
+## Problema
+
+Aplicações crescem rápido quando cada serviço começa a enviar e-mails, SMS ou webhooks por conta própria. O resultado costuma ser duplicação de template, retries inconsistentes e pouca visibilidade de falhas.
+
+Este serviço isola essa responsabilidade em uma fronteira clara.
+
+## Fluxo
+
+<Mermaid chart={`sequenceDiagram
+  participant Order as Serviço de negócio
+  participant Queue as RabbitMQ
+  participant Notify as Notification Service
+  participant AWS as SES/SNS
+  Order->>Queue: NotificationRequested
+  Queue->>Notify: consume()
+  Notify->>Notify: resolve template
+  Notify->>AWS: send
+  AWS-->>Notify: provider status
+`} />
+
+## Responsabilidades
+
+| Responsabilidade | Implementação |
+| --- | --- |
+| Entrada assíncrona | Eventos em RabbitMQ |
+| Templates | Resolução por tipo de notificação |
+| Provedor | Adaptadores para SES e SNS |
+| Confiabilidade | Retry, logs estruturados e idempotência |
+
+<Callout type="success" title="Boa fronteira">
+Serviços de negócio publicam intenção. O serviço de notificação decide canal, template, provedor e política de retry.
+</Callout>
+
+```java
+public interface NotificationProvider {
+    ProviderResult send(NotificationMessage message);
+}
+```

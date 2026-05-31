@@ -1,0 +1,48 @@
+---
+title: "Cache-aside com Redis em APIs backend"
+description: "Como aplicar cache-aside com Redis sem esconder bugs de consistência ou criar invalidação impossível."
+excerpt: "Cache é uma ferramenta de latência, não uma desculpa para dados confusos. O padrão cache-aside funciona bem quando a política de expiração é explícita."
+date: "2026-02-02"
+tags: ["Redis", "Backend", "Performance"]
+featured: true
+published: true
+---
+
+Redis costuma entrar em uma aplicação por um motivo simples: reduzir latência e aliviar o banco. O problema é que cache mal desenhado vira uma segunda fonte de verdade.
+
+## Padrão cache-aside
+
+No cache-aside, a aplicação tenta ler do cache primeiro. Se não encontrar, busca no banco, grava no cache e responde.
+
+```ts
+async function getProduct(id: string) {
+  const cacheKey = `product:${id}`
+  const cached = await redis.get(cacheKey)
+
+  if (cached) {
+    return JSON.parse(cached)
+  }
+
+  const product = await productRepository.findById(id)
+  await redis.set(cacheKey, JSON.stringify(product), 'EX', 300)
+
+  return product
+}
+```
+
+<Callout type="warning" title="Cuidado">
+Cache sem TTL e sem política de invalidação transforma erro transitório em bug persistente.
+</Callout>
+
+## Decisões importantes
+
+| Decisão | Pergunta |
+| --- | --- |
+| TTL | Quanto tempo o dado pode ficar levemente desatualizado? |
+| Chave | A chave representa todos os parâmetros da consulta? |
+| Invalidação | A escrita remove ou atualiza o cache? |
+| Observabilidade | Existe métrica de hit ratio e latência? |
+
+## Minha preferência
+
+Para a maioria das APIs, começo com TTL curto, métricas simples e invalidação explícita nos fluxos de escrita mais importantes. Só depois adiciono estratégias mais agressivas.

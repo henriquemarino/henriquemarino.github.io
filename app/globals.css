@@ -1,0 +1,266 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-primary: 244 248 245;
+  --color-secondary: 54 104 88;
+  --color-accent: 38 139 96;
+  --color-highlight: 25 130 86;
+  --color-light: 232 241 236;
+  --color-dark: 220 232 226;
+  --color-text: 12 35 29;
+  --color-text-light: 72 104 92;
+  --color-code-bg: 225 238 232;
+  --color-border: 178 204 194;
+}
+
+.dark {
+  color-scheme: dark;
+  --color-primary: 10 31 26;
+  --color-secondary: 26 77 62;
+  --color-accent: 45 140 101;
+  --color-highlight: 76 218 154;
+  --color-light: 19 42 35;
+  --color-dark: 5 20 16;
+  --color-text: 224 240 234;
+  --color-text-light: 160 192 176;
+  --color-code-bg: 20 35 30;
+  --color-border: 42 72 61;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-primary text-text font-sans antialiased;
+  }
+
+  ::selection {
+    @apply bg-highlight text-dark;
+  }
+}
+
+@layer utilities {
+  .workspace-bg {
+    background:
+      linear-gradient(rgba(76, 218, 154, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(76, 218, 154, 0.05) 1px, transparent 1px),
+      linear-gradient(135deg, rgb(var(--color-dark)) 0%, rgb(var(--color-primary)) 100%);
+    background-size: 28px 28px, 28px 28px, auto;
+  }
+
+  .section-title {
+    @apply relative inline-block;
+  }
+
+  .section-title::after {
+    content: "";
+    @apply absolute left-0 bg-highlight;
+    bottom: -10px;
+    width: 60px;
+    height: 3px;
+  }
+
+  .glow {
+    text-shadow: 0 0 10px rgba(76, 218, 154, 0.25);
+  }
+
+  .nav-link {
+    @apply relative;
+  }
+
+  .nav-link::after {
+    content: "";
+    @apply absolute -bottom-1.5 left-0 h-0.5 w-0 bg-highlight;
+    transition: width 0.2s ease;
+  }
+
+  .nav-link:hover::after,
+  .nav-link[aria-current="page"]::after {
+    @apply w-full;
+  }
+
+  .panel {
+    @apply border border-border bg-light/70 shadow-panel backdrop-blur;
+  }
+
+  .terminal-window {
+    @apply overflow-hidden rounded-lg border border-border bg-dark font-mono shadow-terminal;
+  }
+
+  .terminal-header {
+    @apply flex items-center border-b border-border bg-light px-3 py-2;
+  }
+
+  .terminal-buttons {
+    @apply flex gap-1.5;
+  }
+
+  .terminal-button {
+    @apply h-3 w-3 rounded-full;
+  }
+
+  .terminal-button.close {
+    @apply bg-[#ff5f56];
+  }
+
+  .terminal-button.minimize {
+    @apply bg-[#ffbd2e];
+  }
+
+  .terminal-button.maximize {
+    @apply bg-[#27c93f];
+  }
+
+  .terminal-title {
+    @apply ml-3 text-xs text-text-light;
+  }
+
+  .terminal-body {
+    @apply p-4 text-left text-sm leading-relaxed text-text;
+  }
+
+  .terminal-prompt {
+    @apply font-bold text-highlight;
+  }
+
+  .terminal-command {
+    @apply text-text;
+  }
+
+  .terminal-output {
+    @apply mb-2 whitespace-pre-wrap break-words text-text-light;
+  }
+
+  .typing-cursor {
+    @apply inline-block h-[18px] w-2 bg-highlight align-middle;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .route-toast {
+    @apply pointer-events-none fixed bottom-5 right-5 z-[60];
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .route-toast.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .route-toast {
+      transition: opacity 180ms ease;
+      transform: none;
+    }
+  }
+
+  .route-toast-cursor {
+    @apply ml-0.5 h-3 w-1.5;
+  }
+
+  .explorer-window {
+    @apply overflow-hidden rounded-lg border border-border bg-dark font-mono shadow-panel;
+  }
+
+  .explorer-header {
+    @apply border-b border-border bg-light px-4 py-3;
+  }
+
+  .explorer-body {
+    @apply flex min-h-[520px] flex-col md:min-h-0 md:flex-row;
+  }
+
+  .explorer-sidebar {
+    @apply flex gap-2 overflow-x-auto border-b border-border bg-light px-3 py-2 md:w-[250px] md:flex-col md:gap-0 md:overflow-x-hidden md:border-b-0 md:border-r md:py-4;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-border)) rgb(var(--color-light));
+  }
+
+  .explorer-sidebar::-webkit-scrollbar {
+    width: 6px;
+    height: 4px;
+  }
+
+  .explorer-sidebar::-webkit-scrollbar-track {
+    background: rgb(var(--color-light));
+  }
+
+  .explorer-sidebar::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-border));
+    border-radius: 2px;
+  }
+
+  .folder-row {
+    @apply flex flex-shrink-0 cursor-pointer items-center whitespace-nowrap rounded-md px-3 py-2 text-[13px] text-text-light transition-all md:rounded-none md:px-4 md:text-sm;
+  }
+
+  .folder-row:hover {
+    @apply bg-secondary/20;
+  }
+
+  .folder-row[data-active="true"] {
+    @apply bg-secondary/40 text-highlight;
+  }
+
+  .file-tile {
+    @apply flex min-h-[96px] cursor-pointer flex-col items-center justify-center rounded-md px-2 py-3 text-center text-text-light transition-all;
+  }
+
+  .file-tile:hover,
+  .file-tile[data-active="true"] {
+    @apply bg-secondary/20 text-text;
+  }
+
+  .prose-portfolio {
+    @apply prose max-w-none;
+  }
+
+  .dark .prose-portfolio {
+    @apply prose-invert;
+  }
+
+  .prose-portfolio :where(pre):not(:where(.not-prose *)) {
+    @apply border border-border bg-code-bg;
+  }
+
+  .prose-portfolio :where(code):not(:where(pre code)):not(:where(.not-prose *)) {
+    @apply rounded bg-code-bg px-1.5 py-0.5 text-highlight;
+  }
+
+  .prose-portfolio :where(a):not(:where(.not-prose *)) {
+    @apply text-highlight no-underline hover:underline;
+  }
+
+  /* shiki dual-theme: pick token color per active theme (defaultColor: false) */
+  .prose-portfolio code[data-theme*=" "],
+  .prose-portfolio code[data-theme*=" "] span {
+    color: var(--shiki-light);
+  }
+
+  .dark .prose-portfolio code[data-theme*=" "],
+  .dark .prose-portfolio code[data-theme*=" "] span {
+    color: var(--shiki-dark);
+  }
+}

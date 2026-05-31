@@ -1,0 +1,17 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#051410"/>
+  <path d="M0 90H1200" stroke="#1a4d3e" stroke-width="2"/>
+  <rect x="84" y="78" width="1032" height="474" rx="18" fill="#1e1e1e" stroke="#2a2a2a" stroke-width="2"/>
+  <rect x="84" y="78" width="1032" height="58" rx="18" fill="#363636"/>
+  <circle cx="122" cy="107" r="10" fill="#ff5f56"/>
+  <circle cx="152" cy="107" r="10" fill="#ffbd2e"/>
+  <circle cx="182" cy="107" r="10" fill="#27c93f"/>
+  <text x="216" y="114" fill="#a0a0a0" font-family="JetBrains Mono, monospace" font-size="20">henrique@portfolio:~</text>
+  <text x="132" y="220" fill="#4cda9a" font-family="JetBrains Mono, monospace" font-size="32" font-weight="700">henrique@portfolio:~$</text>
+  <text x="540" y="220" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="32">whoami</text>
+  <text x="132" y="294" fill="#e0f0ea" font-family="JetBrains Mono, monospace" font-size="58" font-weight="700">Henrique Marino</text>
+  <text x="132" y="354" fill="#a0c0b0" font-family="JetBrains Mono, monospace" font-size="30">Software Engineer | Backend &amp; Architecture</text>
+  <text x="132" y="434" fill="#4cda9a" font-family="JetBrains Mono, monospace" font-size="28">Java • Spring Boot • Node.js • PostgreSQL • Redis • Docker</text>
+  <rect x="132" y="476" width="236" height="42" rx="8" fill="#1a4d3e"/>
+  <text x="156" y="504" fill="#e0f0ea" font-family="JetBrains Mono, monospace" font-size="20">projects/ blog/</text>
+</svg>

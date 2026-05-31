@@ -1,0 +1,45 @@
+---
+title: "Índices PostgreSQL na prática: menos magia, mais plano de execução"
+description: "Uma introdução pragmática para pensar em índices a partir de padrões de consulta e EXPLAIN."
+excerpt: "Índice não é decoração de tabela. Ele precisa responder a uma pergunta concreta feita pela aplicação."
+date: "2026-02-20"
+tags: ["PostgreSQL", "SQL", "Performance"]
+featured: false
+published: true
+---
+
+Índices ajudam quando combinam com o jeito que a aplicação consulta os dados. Criar índice para toda coluna importante costuma piorar escrita, ocupar espaço e ainda não resolver a query lenta.
+
+## Comece pela query
+
+```sql
+EXPLAIN ANALYZE
+SELECT id, status, created_at
+FROM orders
+WHERE customer_id = $1
+  AND status = 'PAID'
+ORDER BY created_at DESC
+LIMIT 20;
+```
+
+Essa consulta sugere um índice composto:
+
+```sql
+CREATE INDEX idx_orders_customer_status_created_at
+ON orders (customer_id, status, created_at DESC);
+```
+
+<Callout type="success" title="Heurística útil">
+Pense no índice como uma estrutura de busca para uma pergunta específica, não como um atributo genérico da coluna.
+</Callout>
+
+## O que observar
+
+| Ponto | Por que olhar |
+| --- | --- |
+| Cardinalidade | Colunas pouco seletivas podem não ajudar sozinhas |
+| Ordem | `ORDER BY` pode se beneficiar da ordem do índice |
+| Escrita | Índices extras deixam inserts e updates mais caros |
+| Plano | `EXPLAIN ANALYZE` mostra o que o banco realmente fez |
+
+PostgreSQL é excelente, mas ele não adivinha intenção. O plano de execução é a conversa mais honesta com o banco.
