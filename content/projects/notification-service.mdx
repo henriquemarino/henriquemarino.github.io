@@ -1,13 +1,14 @@
 ---
 title: "Notification Service"
-description: "Microsserviço para envio de notificações por e-mail e SMS usando filas, templates e serviços AWS."
-date: "2025-11-20"
-tags: ["Java", "Spring Boot", "RabbitMQ", "AWS", "Microsserviços"]
-stack: ["Java", "Spring Boot", "RabbitMQ", "Docker", "AWS SES", "AWS SNS"]
+description: "Serviço assíncrono Producer/Consumer com Java, Spring e RabbitMQ, que desacopla o envio de notificações da lógica de negócio com resiliência e escalabilidade horizontal."
+date: "2024-11-20"
+tags: ["Java", "Spring Boot", "RabbitMQ", "Microsserviços"]
+stack: ["Java", "Spring Boot", "RabbitMQ", "Docker"]
 status: "em desenvolvimento"
 role: "Backend Engineer"
 featured: true
-impact: "Centraliza envio de mensagens e evita que serviços de negócio conheçam detalhes de provedores externos."
+repo: "https://github.com/henriquecpp/notification-service"
+impact: "Desacopla o envio de notificações da lógica de negócio, com retries controlados e escala horizontal."
 published: true
 ---
 
@@ -24,21 +25,21 @@ sequenceDiagram
   participant Order as Serviço de negócio
   participant Queue as RabbitMQ
   participant Notify as Notification Service
-  participant AWS as SES/SNS
+  participant Provider as Provedor (canal)
   Order->>Queue: NotificationRequested
   Queue->>Notify: consume()
   Notify->>Notify: resolve template
-  Notify->>AWS: send
-  AWS-->>Notify: provider status
+  Notify->>Provider: send
+  Provider-->>Notify: status de entrega
 ```
 
 ## Responsabilidades
 
 | Responsabilidade | Implementação |
 | --- | --- |
-| Entrada assíncrona | Eventos em RabbitMQ |
+| Entrada assíncrona | Eventos em RabbitMQ (Producer/Consumer) |
 | Templates | Resolução por tipo de notificação |
-| Provedor | Adaptadores para SES e SNS |
+| Provedor | Adaptadores por canal/provedor |
 | Confiabilidade | Retry, logs estruturados e idempotência |
 
 <Callout type="success" title="Boa fronteira">

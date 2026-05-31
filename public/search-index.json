@@ -40,71 +40,69 @@
   },
   {
     "type": "project",
-    "title": "Rehab.AI",
-    "description": "Plataforma de reabilitação assistida por IA com microsserviços, eventos e geração de planos personalizados.",
+    "title": "Rehab AI",
+    "description": "Plataforma de prescrição de reabilitação com IA generativa: microsserviços em Spring Boot e RabbitMQ, OCR via AWS Textract e geração de planos com AWS Bedrock (Claude 3).",
     "href": "/projects/rehab-ai",
     "tags": [
       "Java",
       "Spring Boot",
-      "PostgreSQL",
       "RabbitMQ",
-      "AWS",
+      "AWS Bedrock",
+      "AWS Textract",
       "IA"
     ],
     "date": "2025-12-15",
     "stack": [
       "Java",
+      "Vue.js",
       "Spring Boot",
-      "PostgreSQL",
       "RabbitMQ",
-      "Docker",
-      "Textract",
-      "Bedrock",
-      "S3"
+      "PostgreSQL",
+      "AWS Textract",
+      "AWS Bedrock",
+      "Terraform",
+      "OpenTelemetry"
     ]
   },
   {
     "type": "project",
     "title": "Notification Service",
-    "description": "Microsserviço para envio de notificações por e-mail e SMS usando filas, templates e serviços AWS.",
+    "description": "Serviço assíncrono Producer/Consumer com Java, Spring e RabbitMQ, que desacopla o envio de notificações da lógica de negócio com resiliência e escalabilidade horizontal.",
     "href": "/projects/notification-service",
     "tags": [
       "Java",
       "Spring Boot",
       "RabbitMQ",
-      "AWS",
       "Microsserviços"
     ],
-    "date": "2025-11-20",
+    "date": "2024-11-20",
     "stack": [
       "Java",
       "Spring Boot",
       "RabbitMQ",
-      "Docker",
-      "AWS SES",
-      "AWS SNS"
+      "Docker"
     ]
   },
   {
     "type": "project",
-    "title": "Authentication Service",
-    "description": "Serviço de autenticação e autorização com JWT, OAuth2 e Spring Security.",
-    "href": "/projects/authentication-service",
+    "title": "JWT RBAC Spring",
+    "description": "Template de autenticação stateless em Java + Spring Security com JWT HS256 e controle de acesso por papéis (RBAC), dockerizado e pronto para reuso em microsserviços.",
+    "href": "/projects/jwt-rbac-spring",
     "tags": [
       "Java",
       "Spring Security",
       "JWT",
-      "OAuth2",
-      "PostgreSQL"
+      "RBAC",
+      "Docker"
     ],
-    "date": "2025-10-05",
+    "date": "2024-06-01",
     "stack": [
       "Java",
       "Spring Boot",
       "Spring Security",
-      "JWT",
-      "OAuth2",
-      "PostgreSQL"
+      "JWT HS256",
+      "RBAC",
+      "Docker"
     ]
   }
 ]

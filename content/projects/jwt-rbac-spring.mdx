@@ -1,0 +1,44 @@
+---
+title: "JWT RBAC Spring"
+description: "Template de autenticação stateless em Java + Spring Security com JWT HS256 e controle de acesso por papéis (RBAC), dockerizado e pronto para reuso em microsserviços."
+date: "2024-06-01"
+tags: ["Java", "Spring Security", "JWT", "RBAC", "Docker"]
+stack: ["Java", "Spring Boot", "Spring Security", "JWT HS256", "RBAC", "Docker"]
+status: "em desenvolvimento"
+role: "Backend Engineer"
+featured: false
+repo: "https://github.com/henriquecpp/jwt-rbac-spring"
+impact: "Base reutilizável de autenticação e autorização para microsserviços, evitando reimplementar segurança a cada projeto."
+published: true
+---
+
+## Objetivo
+
+Um template enxuto de autenticação **stateless** em Spring Security: login, emissão e validação de JWT assinado com **HS256** e autorização baseada em papéis (**RBAC**). A ideia é servir como ponto de partida dockerizado e reutilizável entre microsserviços, sem reimplementar segurança do zero a cada projeto.
+
+## Decisões
+
+- **JWT HS256** para autenticação stateless entre clientes e APIs.
+- **RBAC**: papéis e permissões mapeados para as `authorities` do Spring Security.
+- Filtros e providers do **Spring Security** para validação e políticas de acesso.
+- **Docker** para subir o serviço de forma reproduzível e integrável a outros stacks.
+
+<Callout type="warning" title="Trade-off">
+JWT stateless simplifica chamadas entre serviços, mas exige cuidado com expiração curta, rotação da chave de assinatura e estratégia de revogação.
+</Callout>
+
+```java
+@Bean
+SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+}
+```
