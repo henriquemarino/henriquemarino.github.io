@@ -11,11 +11,10 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL,
   locale: 'pt_BR',
   email: 'henriquedotcpp@gmail.com',
-  phone: '+55 (11) 91306-4646',
   location: 'São Paulo, Brasil',
   github: 'https://github.com/henriquecpp',
   linkedin: 'https://www.linkedin.com/in/henrique-cpp',
-  ogImage: '/img/og-image.svg',
+  ogImage: '/img/og-image.png',
 }
 
 export function withBasePath(path: string) {
