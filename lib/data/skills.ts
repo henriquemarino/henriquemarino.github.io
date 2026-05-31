@@ -2,21 +2,31 @@ import type { LucideIcon } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
 import {
   Boxes,
-  Braces,
   Cloud,
   Code2,
-  Coffee,
-  Container,
   Database,
   GitBranch,
   Leaf,
   Network,
-  Server,
   ShieldCheck,
   Terminal,
   Wrench,
 } from 'lucide-react'
-import { JenkinsIcon, MongoDbIcon, MySqlIcon, NodejsIcon, TerraformIcon } from '@/components/ui/BrandIcons'
+import {
+  DockerIcon,
+  HibernateIcon,
+  JavaIcon,
+  JenkinsIcon,
+  MongoDbIcon,
+  MySqlIcon,
+  NestJsIcon,
+  NodejsIcon,
+  PostgreSqlIcon,
+  RedisIcon,
+  SpringIcon,
+  TerraformIcon,
+  TypeScriptIcon,
+} from '@/components/ui/TechIcons'
 
 // Accepts both lucide icons and the inline brand glyphs (SVG components).
 export type SkillIcon = LucideIcon | ComponentType<SVGProps<SVGSVGElement>>
@@ -47,7 +57,7 @@ export const skillFolders: SkillFolder[] = [
     files: [
       {
         name: 'Java',
-        icon: Coffee,
+        icon: JavaIcon,
         extension: '.java',
         level: 'core',
         description: 'Linguagem principal para serviços backend, APIs e microsserviços.',
@@ -55,7 +65,7 @@ export const skillFolders: SkillFolder[] = [
       },
       {
         name: 'TypeScript',
-        icon: Braces,
+        icon: TypeScriptIcon,
         extension: '.ts',
         level: 'strong',
         description: 'Uso em backend Node.js e em ferramentas para produtividade de engenharia.',
@@ -79,7 +89,7 @@ export const skillFolders: SkillFolder[] = [
     files: [
       {
         name: 'PostgreSQL',
-        icon: Database,
+        icon: PostgreSqlIcon,
         extension: '.db',
         level: 'core',
         description: 'Banco relacional principal para modelagem transacional e consultas previsíveis.',
@@ -87,7 +97,7 @@ export const skillFolders: SkillFolder[] = [
       },
       {
         name: 'Redis',
-        icon: Server,
+        icon: RedisIcon,
         extension: '.cache',
         level: 'strong',
         description: 'Cache, controle de concorrência leve e padrões de expiração para reduzir latência.',
@@ -96,7 +106,7 @@ export const skillFolders: SkillFolder[] = [
       {
         name: 'MySQL',
         icon: MySqlIcon,
-        extension: '.sql',
+        extension: '.mysql',
         level: 'strong',
         description: 'Banco relacional para modelagem transacional e consultas em SQL.',
         usage: ['SQL', 'índices', 'transações'],
@@ -127,7 +137,7 @@ export const skillFolders: SkillFolder[] = [
     files: [
       {
         name: 'Spring Boot',
-        icon: Leaf,
+        icon: SpringIcon,
         extension: '.spring',
         level: 'core',
         description: 'Base para APIs, autenticação, integração com bancos e serviços corporativos.',
@@ -135,7 +145,7 @@ export const skillFolders: SkillFolder[] = [
       },
       {
         name: 'NestJS',
-        icon: Network,
+        icon: NestJsIcon,
         extension: '.nest',
         level: 'strong',
         description: 'Arquitetura modular em Node.js para APIs e serviços com TypeScript.',
@@ -151,7 +161,7 @@ export const skillFolders: SkillFolder[] = [
       },
       {
         name: 'Hibernate',
-        icon: Boxes,
+        icon: HibernateIcon,
         extension: '.orm',
         level: 'working',
         description: 'Mapeamento objeto-relacional com atenção a transações e N+1 queries.',
@@ -167,7 +177,7 @@ export const skillFolders: SkillFolder[] = [
     files: [
       {
         name: 'Docker',
-        icon: Container,
+        icon: DockerIcon,
         extension: '.container',
         level: 'core',
         description: 'Ambientes reproduzíveis para desenvolvimento, testes e publicação de serviços.',
