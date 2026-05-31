@@ -84,7 +84,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     jobTitle: 'Software Engineer',
     description: siteConfig.description,
     url: siteConfig.url,
-    image: absoluteUrl('/img/profile-picture.jpeg'),
+    image: absoluteUrl('/img/profile-picture.webp'),
     sameAs: [siteConfig.github, siteConfig.linkedin],
     knowsAbout: ['Java', 'Spring Boot', 'Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Microservices', 'Software Architecture'],
   }

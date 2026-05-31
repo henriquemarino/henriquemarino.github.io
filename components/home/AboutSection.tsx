@@ -20,7 +20,7 @@ export function AboutSection({ full = false }: { full?: boolean }) {
             <div className="relative">
               <div className="absolute -inset-4 rounded-lg border-2 border-secondary/30" />
               <Image
-                src={withBasePath('/img/profile-picture.jpeg')}
+                src={withBasePath('/img/profile-picture.webp')}
                 alt="Henrique Marino"
                 width={800}
                 height={800}
