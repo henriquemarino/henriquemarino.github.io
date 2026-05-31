@@ -1,7 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
 import {
-  Boxes,
   Cloud,
   Code2,
   Database,
@@ -13,7 +12,9 @@ import {
   Wrench,
 } from 'lucide-react'
 import {
+  AwsIcon,
   DockerIcon,
+  DynamoDbIcon,
   HibernateIcon,
   JavaIcon,
   JenkinsIcon,
@@ -121,7 +122,7 @@ export const skillFolders: SkillFolder[] = [
       },
       {
         name: 'DynamoDB',
-        icon: Boxes,
+        icon: DynamoDbIcon,
         extension: '.nosql',
         level: 'working',
         description: 'Modelagem orientada a acesso para workloads serverless e cloud-native.',
@@ -185,7 +186,7 @@ export const skillFolders: SkillFolder[] = [
       },
       {
         name: 'AWS',
-        icon: Cloud,
+        icon: AwsIcon,
         extension: '.cloud',
         level: 'strong',
         description: 'Uso de serviços gerenciados para mensageria, storage, deploy e integrações.',
