@@ -19,7 +19,8 @@ Este serviço isola essa responsabilidade em uma fronteira clara.
 
 ## Fluxo
 
-<Mermaid chart={`sequenceDiagram
+```mermaid
+sequenceDiagram
   participant Order as Serviço de negócio
   participant Queue as RabbitMQ
   participant Notify as Notification Service
@@ -29,7 +30,7 @@ Este serviço isola essa responsabilidade em uma fronteira clara.
   Notify->>Notify: resolve template
   Notify->>AWS: send
   AWS-->>Notify: provider status
-`} />
+```
 
 ## Responsabilidades
 
