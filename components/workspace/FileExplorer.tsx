@@ -94,6 +94,7 @@ export function FileExplorer() {
                 activeFile.level === 'core' && 'border-highlight/60 text-highlight',
                 activeFile.level === 'strong' && 'border-accent/60 text-accent',
                 activeFile.level === 'working' && 'border-secondary/80 text-text-light',
+                activeFile.level === 'planned' && 'border-dashed border-secondary/60 text-text-light',
               )}
             >
               {levelLabels[activeFile.level]}
