@@ -11,6 +11,8 @@ export function MermaidDiagram({ chart }: { chart: string }) {
     let mounted = true
 
     async function render() {
+      if (!chart) return
+
       try {
         const mermaid = (await import('mermaid')).default
         mermaid.initialize({
