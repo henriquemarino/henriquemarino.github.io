@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import type { ComponentType, SVGProps } from 'react'
 import {
   Boxes,
   Braces,
@@ -15,10 +16,14 @@ import {
   Terminal,
   Wrench,
 } from 'lucide-react'
+import { JenkinsIcon, MongoDbIcon, MySqlIcon, NodejsIcon, TerraformIcon } from '@/components/ui/BrandIcons'
+
+// Accepts both lucide icons and the inline brand glyphs (SVG components).
+export type SkillIcon = LucideIcon | ComponentType<SVGProps<SVGSVGElement>>
 
 export type SkillFile = {
   name: string
-  icon: LucideIcon
+  icon: SkillIcon
   extension: string
   level: 'core' | 'strong' | 'working'
   description: string
@@ -29,7 +34,7 @@ export type SkillFolder = {
   id: string
   label: string
   path: string
-  icon: LucideIcon
+  icon: SkillIcon
   files: SkillFile[]
 }
 
@@ -89,6 +94,22 @@ export const skillFolders: SkillFolder[] = [
         usage: ['cache-aside', 'TTL', 'rate limiting'],
       },
       {
+        name: 'MySQL',
+        icon: MySqlIcon,
+        extension: '.sql',
+        level: 'strong',
+        description: 'Banco relacional para modelagem transacional e consultas em SQL.',
+        usage: ['SQL', 'índices', 'transações'],
+      },
+      {
+        name: 'MongoDB',
+        icon: MongoDbIcon,
+        extension: '.nosql',
+        level: 'working',
+        description: 'Banco NoSQL orientado a documentos para dados flexíveis e schemas dinâmicos.',
+        usage: ['documentos', 'agregações', 'schemas flexíveis'],
+      },
+      {
         name: 'DynamoDB',
         icon: Boxes,
         extension: '.nosql',
@@ -119,6 +140,14 @@ export const skillFolders: SkillFolder[] = [
         level: 'strong',
         description: 'Arquitetura modular em Node.js para APIs e serviços com TypeScript.',
         usage: ['providers', 'modules', 'DTOs'],
+      },
+      {
+        name: 'Node.js',
+        icon: NodejsIcon,
+        extension: '.js',
+        level: 'strong',
+        description: 'Runtime para serviços backend em JavaScript/TypeScript e ferramentas internas.',
+        usage: ['APIs REST', 'NestJS', 'scripts e automações'],
       },
       {
         name: 'Hibernate',
@@ -159,6 +188,22 @@ export const skillFolders: SkillFolder[] = [
         level: 'working',
         description: 'Pipelines para build, validação e deploy com rastreabilidade.',
         usage: ['GitHub Actions', 'quality gates', 'static export'],
+      },
+      {
+        name: 'Terraform',
+        icon: TerraformIcon,
+        extension: '.tf',
+        level: 'working',
+        description: 'Infraestrutura como código para provisionar e versionar recursos de nuvem.',
+        usage: ['IaC', 'AWS', 'providers e state'],
+      },
+      {
+        name: 'Jenkins',
+        icon: JenkinsIcon,
+        extension: '.ci',
+        level: 'working',
+        description: 'Automação de pipelines de build, testes e deploy em servidores de CI.',
+        usage: ['pipelines', 'jobs', 'integração contínua'],
       },
     ],
   },
