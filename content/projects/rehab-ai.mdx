@@ -21,7 +21,8 @@ O projeto foi pensado como um sistema orientado a eventos para desacoplar ingest
 
 ## Arquitetura
 
-<Mermaid chart={`flowchart LR
+```mermaid
+flowchart LR
   A[Upload do documento] --> B[S3]
   B --> C[Textract Worker]
   C --> D[RabbitMQ]
@@ -29,7 +30,7 @@ O projeto foi pensado como um sistema orientado a eventos para desacoplar ingest
   E --> F[Bedrock]
   E --> G[(PostgreSQL)]
   G --> H[API Spring Boot]
-`} />
+```
 
 ## Stack
 
