@@ -87,7 +87,7 @@ export const skillFolders: SkillFolder[] = [
         extension: '.go',
         level: 'planned',
         description: 'Ainda não estudei. Está nos meus planos aprender Go para serviços backend de alta performance e ferramentas de linha de comando.',
-        usage: ['estudo planejado', 'concorrência', 'serviços backend'],
+        usage: ['estudo planejado', 'concorrência', 'escalabilidade'],
       },
     ],
   },

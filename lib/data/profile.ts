@@ -6,7 +6,6 @@ export const profile = {
   headline: 'Desenvolvedor backend. Gosto de sistemas simples, bem modelados e confiáveis.',
   summary:
     'Desenvolvedor backend com foco em Java, Spring Boot e Node.js, além de PostgreSQL, Redis e Docker. Venho construindo uma base técnica desde 2017 e gosto de entender bem um problema antes de sair codando. Prefiro soluções simples, que continuem fáceis de manter depois.',
-  availability: 'Aberto a novas oportunidades e conversas técnicas',
   experienceYears: '3+',
   completedProjects: '20+',
   resume: [
