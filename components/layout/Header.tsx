@@ -17,7 +17,7 @@ export function Header() {
     <header className="fixed top-0 z-50 w-full border-b border-secondary/20 bg-dark/90 py-4 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="font-mono text-xl font-bold text-text" onClick={() => setIsOpen(false)}>
-          HenriqueMarino<span className="text-highlight">.dev</span>
+          HenriqueMarino<span className="text-highlight">.github.io</span>
         </Link>
 
         <div className="flex items-center gap-3">
