@@ -343,7 +343,6 @@ export function MermaidDiagram({ chart }: { chart: string }) {
               Use a roda do mouse para zoom rápido • Dê duplo clique para alternar zoom • Arraste para mover
             </span>
             <span className="text-[10px] text-text-light font-mono">
-              Resoluções grandes
             </span>
           </div>
         </div>,

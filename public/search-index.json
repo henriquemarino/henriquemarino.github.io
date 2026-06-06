@@ -1,8 +1,8 @@
 [
   {
     "type": "post",
-    "title": "Arquitetura Hexagonal na prática: decifrando Portas e Adaptadores com um sistema de Matchmaking",
-    "description": "Uma visão prática e sem enrolação de como construir um serviço desacoplado de bancos de dados, frameworks e mensageria usando Java e Spring Boot.",
+    "title": "Arquitetura Hexagonal na prática: Portas e Adaptadores em um sistema de Matchmaking",
+    "description": "Como manter regras de negócio longe de banco, framework e mensageria usando Java e Spring Boot.",
     "href": "/blog/arquitetura-hexagonal-na-pratica",
     "tags": [
       "Arquitetura",
@@ -11,7 +11,7 @@
       "Backend"
     ],
     "date": "2026-06-05",
-    "readingTime": "13 min de leitura"
+    "readingTime": "17 min de leitura"
   },
   {
     "type": "post",
@@ -26,19 +26,6 @@
     ],
     "date": "2026-06-05",
     "readingTime": "12 min de leitura"
-  },
-  {
-    "type": "post",
-    "title": "Índices PostgreSQL na prática: menos magia, mais plano de execução",
-    "description": "Como pensar em índices a partir dos padrões de consulta e do EXPLAIN, sem criar índice à toa.",
-    "href": "/blog/postgresql-indices-na-pratica",
-    "tags": [
-      "PostgreSQL",
-      "SQL",
-      "Performance"
-    ],
-    "date": "2026-02-20",
-    "readingTime": "1 min de leitura"
   },
   {
     "type": "project",

@@ -1,20 +1,20 @@
 ---
-title: "Arquitetura Hexagonal na prática: decifrando Portas e Adaptadores com um sistema de Matchmaking"
-description: "Uma visão prática e sem enrolação de como construir um serviço desacoplado de bancos de dados, frameworks e mensageria usando Java e Spring Boot."
-excerpt: "A regra de ouro da Arquitetura Hexagonal é: o miolo não conhece o mundo externo. Veja como aplicar esse isolamento em um sistema de matchmaking real usando Java e Spring Boot."
+title: "Arquitetura Hexagonal na prática: Portas e Adaptadores em um sistema de Matchmaking"
+description: "Como manter regras de negócio longe de banco, framework e mensageria usando Java e Spring Boot."
+excerpt: "A regra de ouro da Arquitetura Hexagonal é: o miolo não conhece o mundo externo. Veja essa separação em um sistema de matchmaking real usando Java e Spring Boot."
 date: "2026-06-05"
 tags: ["Arquitetura", "Hexagonal", "DDD", "Backend"]
 featured: true
 published: true
 ---
 
-Se você já criou um projeto Spring Boot, a cena abaixo deve ser familiar.
+Se você já criou um projeto Spring Boot, talvez conheça esta cena.
 
 Você cria um modelo de domínio, adiciona <code>@Entity</code> em cima da classe, enche os campos com <code>@Column</code>, <code>@Id</code> e <code>@GeneratedValue</code> e, quando percebe, a regra mais importante da sua empresa está ditada pelas limitações do Hibernate. Para piorar, injeta o <code>@Autowired</code> direto no meio da lógica e mistura tratamento HTTP com lógica de negócios.
 
-O resultado? Seu código virou refém do framework. Trocar de banco, atualizar uma biblioteca ou rodar testes unitários rápidos virou um parto.
+O resultado é aquele acoplamento que parece inofensivo no começo, mas cobra juros depois. Trocar de banco, atualizar uma biblioteca ou rodar testes unitários rápidos começa a doer mais do que deveria.
 
-A **Arquitetura Hexagonal** (ou Portas e Adaptadores) resolve justamente isso. Ela não é sobre criar pastas bonitas; é sobre isolar o coração do seu sistema para que ele continue batendo limpo, independente de quem o chame ou de onde os dados sejam salvos.
+A **Arquitetura Hexagonal** (ou Portas e Adaptadores) ataca esse ponto. Ela não é sobre criar pastas bonitas; é sobre isolar o coração do sistema para que as regras continuem funcionando do mesmo jeito, independentemente de quem chamou a operação ou de onde os dados foram salvos.
 
 Para ver como isso funciona na prática, vamos analisar o núcleo de um sistema de **matchmaking em tempo real** (uma plataforma para parear jogadores em partidas online).
 
@@ -55,15 +55,49 @@ com.henriquemarino.matchmaking
 └── config          # A central de injeção que une portas e adaptadores
 ```
 
-A regra de ouro aqui é unidirecional: **as dependências sempre apontam para dentro**. 
+A regra de ouro aqui é unidirecional: **as dependências sempre apontam para dentro**.
 
 O domínio está no centro e não conhece ninguém. A aplicação conhece o domínio e as portas. Os adaptadores conhecem as portas e o domínio. O pacote <code>config</code> conhece todo mundo para conseguir costurar as dependências na inicialização.
 
+Antes de entrar nos diagramas, guarde esta bússola:
+
+```txt
+HTTP -> Controller -> Porta de Entrada -> Caso de Uso -> Domínio
+     -> Porta de Saída -> Adaptador JPA -> Banco
+     -> Porta de Saída -> Adaptador de Eventos
+```
+
+E aqui está a diferença que mais confunde no começo:
+
+| Tipo | Exemplo no projeto | Quem chama? | Quem implementa? |
+| --- | --- | --- | --- |
+| Porta de entrada | <code>JoinMatchUseCase</code> | <code>MatchController</code> | <code>JoinMatchService</code> |
+| Porta de saída | <code>MatchRepository</code> | <code>JoinMatchService</code> | <code>MatchPersistenceAdapter</code> |
+| Porta de saída | <code>DomainEventPublisher</code> | Casos de uso | <code>SpringDomainEventPublisher</code> |
+
+As portas de entrada dizem o que o sistema aceita receber. As portas de saída dizem do que o sistema precisa para terminar o trabalho.
+
+<Callout type="info" title="Um detalhe importante">
+Neste artigo, vamos acompanhar principalmente o fluxo de entrada de jogador em uma partida. Ele é pequeno o suficiente para caber na cabeça, mas atravessa todas as camadas: REST, caso de uso, domínio, persistência e eventos.
+</Callout>
+
+Se bater dúvida sobre onde uma classe deveria morar, esta tabela resolve boa parte dos casos:
+
+| Camada | Pode depender de | Evite trazer para cá |
+| --- | --- | --- |
+| <code>domain</code> | Java e tipos do próprio domínio | Spring, JPA, HTTP, banco |
+| <code>application</code> | <code>domain</code> e <code>ports</code> | adapters, controllers, repositories JPA |
+| <code>ports</code> | linguagem do domínio e comandos/queries | detalhes de infraestrutura |
+| <code>adapters</code> | portas, domínio e frameworks | regra de negócio nova |
+| <code>config</code> | todas as peças que precisa conectar | regra de negócio |
+
 ---
 
-## O Fluxo de uma Ação (Cronológico)
+## O Fluxo de uma Ação
 
-O que acontece no sistema quando um jogador pede para entrar em uma partida? Para facilitar a leitura, dividimos esse fluxo cronológico em três etapas menores e bem delimitadas.
+O que acontece no sistema quando um jogador pede para entrar em uma partida?
+
+Vamos dividir esse caminho em três etapas. Primeiro o sistema recebe a intenção e busca o estado atual. Depois o domínio aplica as regras. Por fim, a aplicação salva o novo estado, publica os eventos e devolve a resposta.
 
 <Callout type="info" title="Interatividade">
 Todos os diagramas abaixo possuem suporte a zoom! Se estiver no computador, passe o mouse sobre o diagrama e clique no botão <strong>Zoom</strong> no canto superior direito para ampliá-lo, arrastá-lo com o mouse e inspecioná-lo confortavelmente de perto.
@@ -90,13 +124,13 @@ sequenceDiagram
     Note over REST: Recebe o pedido HTTP e monta um Comando interno
     REST->>InPort: "Quero entrar na partida 123"
     InPort->>AppService: Repassa a intenção de entrada (Comando)
-    
+
     Note over AppService: Para validar as regras, busca o estado atual da partida
     AppService->>OutPortRepo: "Busque a partida 123"
     OutPortRepo->>Persistence: Delega a busca
     Persistence->>DB: Consulta SQL (SELECT)
     DB-->>Persistence: Retorna dados brutos (Entity)
-    Note over Persistence: Converte os dados do banco para o modelo limpo (Rehydration)
+    Note over Persistence: Converte os dados do banco para o modelo limpo (Reidratação)
     Persistence-->>AppService: Retorna a Partida (Objeto de Domínio puro)
 ```
 
@@ -105,7 +139,7 @@ sequenceDiagram
   </figcaption>
 
   <div className="mt-4 text-xs text-text-light/80 leading-relaxed border-t border-border/20 pt-4">
-    <strong>O que está acontecendo no código:</strong> O ponto de partida é o <code>MatchController</code> (Adaptador de Entrada REST), que recebe os parâmetros da API e os encapsula no record imutável <code>JoinMatchCommand</code>. Ele invoca o caso de uso pela interface <code>JoinMatchUseCase</code> (Porta de Entrada). O <code>JoinMatchService</code> (Serviço de Aplicação) assume o controle e faz um <code>findById()</code> na interface <code>MatchRepository</code> (Porta de Saída). O <code>MatchPersistenceAdapter</code> intercepta a chamada, realiza o select pelo Spring Data JPA e, por fim, usa o <code>MatchPersistenceMapper</code> para traduzir a entidade física do banco (<code>MatchJpaEntity</code>) em uma instância pura da classe de domínio <code>Match</code>. Esse processo de reconstrução do estado na memória é chamado de <strong>Reidratação</strong>.
+    <strong>O que está acontecendo no código:</strong> O ponto de partida é o <code>MatchController</code> (Adaptador de Entrada REST), que recebe os parâmetros da API e monta um <code>JoinMatchCommand</code>. Ele chama a porta de entrada <code>JoinMatchUseCase</code>. O <code>JoinMatchService</code> assume o fluxo e pede a partida para a porta de saída <code>MatchRepository</code>. Quem atende essa porta é o <code>MatchPersistenceAdapter</code>, que usa Spring Data JPA e o <code>MatchPersistenceMapper</code> para transformar a entidade do banco (<code>MatchJpaEntity</code>) em uma instância limpa de <code>Match</code>. Esse processo de reconstruir o agregado em memória é a <strong>reidratação</strong>.
   </div>
 </figure>
 
@@ -128,7 +162,7 @@ sequenceDiagram
     AppService->>Domain: AdicionarJogador(novoJogador)
     Note over Domain: Valida as regras:<br/>1. O jogador já está aqui?<br/>2. Ainda há vagas?<br/>3. Se encheu, muda status para READY.<br/>Enfileira o evento "JogadorEntrou".
     Domain-->>AppService: OK (Retorna estado modificado)
-    
+
     Note over AppService: Agora persiste a alteração de volta no banco
     AppService->>OutPortRepo: "Salve o novo estado da partida"
     OutPortRepo->>Persistence: Delega o salvamento
@@ -143,7 +177,7 @@ sequenceDiagram
   </figcaption>
 
   <div className="mt-4 text-xs text-text-light/80 leading-relaxed border-t border-border/20 pt-4">
-    <strong>O que está acontecendo no código:</strong> O <code>JoinMatchService</code> executa as validações e alterações chamando o método rico do domínio <code>match.join(player)</code>. A entidade <code>Match</code> valida suas regras internas de consistência (se o jogador já está cadastrado, se a partida tem capacidade disponível para o <code>GameMode</code> ou se o status atual permite adições). Caso as regras sejam atendidas, o jogador é adicionado e a própria classe <code>Match</code> enfileira um <code>PlayerJoinedMatchEvent</code> em sua lista privada de eventos. Em seguida, a aplicação chama <code>matchRepository.save(match)</code>. O adaptador <code>MatchPersistenceAdapter</code> traduz o modelo puro de domínio atualizado em uma <code>MatchJpaEntity</code> e dispara a gravação SQL via Spring Data JPA no banco de dados.
+    <strong>O que está acontecendo no código:</strong> O <code>JoinMatchService</code> não decide se o jogador pode entrar. Ele chama <code>match.join(player)</code> e deixa o domínio trabalhar. A classe <code>Match</code> verifica se o jogador já está na partida, se ainda há vaga e se o status permite entrada. Quando tudo passa, ela adiciona o jogador e registra um <code>PlayerJoinedMatchEvent</code>. Só depois disso a aplicação chama <code>matchRepository.save(match)</code>, e o adaptador de persistência traduz o modelo de domínio atualizado para a entidade JPA.
   </div>
 </figure>
 
@@ -166,12 +200,12 @@ sequenceDiagram
     Note over AppService: Coleta os fatos históricos que aconteceram
     AppService->>Domain: "Me dê os eventos acumulados"
     Domain-->>AppService: Retorna lista de eventos e limpa o agregado
-    
+
     Note over AppService: Notifica o mundo externo (sem acoplamento direto)
     AppService->>OutPortEvent: "Publique estes eventos"
     OutPortEvent->>EventAdapter: Delega a publicação
     Note over EventAdapter: Envia para Spring Events (ou futuramente Kafka)
-    
+
     Note over AppService, REST: Devolve o resultado da operação
     AppService-->>REST: Retorna a Partida atualizada
     Note over REST: Converte os dados do domínio em JSON
@@ -183,7 +217,7 @@ sequenceDiagram
   </figcaption>
 
   <div className="mt-4 text-xs text-text-light/80 leading-relaxed border-t border-border/20 pt-4">
-    <strong>O que está acontecendo no código:</strong> Após persistir no banco, o <code>JoinMatchService</code> faz a extração dos eventos chamando <code>match.pullDomainEvents()</code> (método que copia e limpa os eventos acumulados no agregado para evitar disparos duplicados). A lista de eventos é enviada para a porta de saída <code>DomainEventPublisher.publishAll(events)</code>. O adaptador <code>SpringDomainEventPublisher</code> intercepta esses eventos e os publica no <code>ApplicationEventPublisher</code> do Spring local. Por fim, a partida atualizada é retornada ao <code>MatchController</code>, que utiliza o <code>MatchRestMapper</code> para convertê-la em um DTO <code>MatchResponse</code> e responder ao cliente HTTP com o status <code>200 OK</code>.
+    <strong>O que está acontecendo no código:</strong> Depois de salvar, o <code>JoinMatchService</code> chama <code>match.pullDomainEvents()</code>. Esse método copia os eventos acumulados e limpa a lista interna, evitando publicação duplicada. A lista vai para a porta de saída <code>DomainEventPublisher</code>. Hoje, quem implementa essa porta é o <code>SpringDomainEventPublisher</code>, que publica no <code>ApplicationEventPublisher</code> do Spring. A resposta volta ao <code>MatchController</code>, que usa o <code>MatchRestMapper</code> para transformar domínio em <code>MatchResponse</code>.
   </div>
 </figure>
 
@@ -195,19 +229,27 @@ Vamos ver como esse isolamento se traduz em classes reais do projeto.
 
 ### 1. O coração limpo: <code>Match.java</code> (Domínio)
 
-Aqui estão as regras do jogo. Repare nos imports: **não há Spring, não há JPA**. É Java puro. 
+Aqui estão as regras do jogo. Repare nos imports: **não há Spring, não há JPA**. É Java puro.
 
-O construtor é privado, forçando a criação a passar por métodos de fábrica nomeados — como o <code>create</code> abaixo, que já nasce com o status correto e registra o evento de criação. Quem gera o <code>MatchId</code> novo e chama essa fábrica é um <code>MatchFactory</code> (serviço de domínio). A lista de eventos de domínio é acumulada internamente para que quem salve a partida possa despachá-los depois.
+O construtor é privado, então ninguém cria uma partida "pela metade". Existem dois caminhos explícitos: <code>create</code>, usado quando uma partida nasce agora, e <code>rehydrate</code>, usado quando o banco devolve os dados de uma partida que já existia.
+
+A lista de eventos também fica dentro do agregado. O domínio registra que algo aconteceu, mas não publica nada sozinho. Publicar é trabalho da camada de aplicação por meio de uma porta.
+
+O recorte abaixo omite alguns campos de tempo e resultado para manter o foco nas regras principais.
 
 ```java
 package com.henriquemarino.matchmaking.domain.model;
 
-// Apenas imports de regras e tipos do próprio domínio. Sem frameworks!
 import com.henriquemarino.matchmaking.domain.events.DomainEvent;
 import com.henriquemarino.matchmaking.domain.events.MatchCreatedEvent;
 import com.henriquemarino.matchmaking.domain.events.PlayerJoinedMatchEvent;
 import com.henriquemarino.matchmaking.domain.exceptions.InvalidMatchStateException;
 import com.henriquemarino.matchmaking.domain.exceptions.MatchFullException;
+import com.henriquemarino.matchmaking.domain.exceptions.PlayerAlreadyInMatchException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class Match {
     private final MatchId id;
@@ -216,7 +258,6 @@ public class Match {
     private final List<Player> players;
     private final List<DomainEvent> domainEvents = new ArrayList<>();
 
-    // O construtor é privado: ninguém cria uma Match "pela metade".
     private Match(MatchId id, GameMode gameMode, MatchStatus status, List<Player> players) {
         this.id = id;
         this.gameMode = gameMode;
@@ -224,15 +265,27 @@ public class Match {
         this.players = players;
     }
 
-    // A criação passa por uma fábrica nomeada, que já nasce válida e registra o evento.
     public static Match create(MatchId id, GameMode gameMode) {
+        Objects.requireNonNull(id, "MatchId não pode ser nulo");
+        Objects.requireNonNull(gameMode, "GameMode não pode ser nulo");
+
         Match match = new Match(id, gameMode, MatchStatus.WAITING_FOR_PLAYERS, new ArrayList<>());
         match.recordEvent(MatchCreatedEvent.of(id, gameMode));
         return match;
     }
 
-    // O domínio protege sua própria consistência
+    public static Match rehydrate(
+            MatchId id,
+            GameMode gameMode,
+            MatchStatus status,
+            List<Player> players
+    ) {
+        return new Match(id, gameMode, status, new ArrayList<>(players));
+    }
+
     public void join(Player player) {
+        Objects.requireNonNull(player, "Player não pode ser nulo");
+
         if (players.contains(player)) {
             throw new PlayerAlreadyInMatchException(id, player.id());
         }
@@ -244,8 +297,6 @@ public class Match {
         }
 
         players.add(player);
-        
-        // Registra o fato histórico que aconteceu
         recordEvent(PlayerJoinedMatchEvent.of(id, player.id(), players.size(), gameMode.capacity()));
 
         if (players.size() == gameMode.capacity()) {
@@ -257,6 +308,10 @@ public class Match {
         List<DomainEvent> pulled = List.copyOf(domainEvents);
         domainEvents.clear();
         return pulled;
+    }
+
+    private void recordEvent(DomainEvent event) {
+        domainEvents.add(event);
     }
 }
 ```
@@ -282,11 +337,15 @@ public interface MatchRepository {
 
 ### 3. O Organizador (Caso de Uso): <code>JoinMatchService.java</code>
 
-A classe que orquestra a entrada do jogador não tem <code>@Service</code> do Spring. Ela recebe suas dependências (as portas) via construtor. Isso a torna infinitamente testável. Se quisermos testá-la, basta passar um repositório mockado em memória (um simples <code>HashMap</code>) no construtor.
+A classe que orquestra a entrada do jogador não tem <code>@Service</code> do Spring. Ela recebe suas dependências pelo construtor, sempre pelas portas. Isso facilita muito o teste: no lugar de um banco real, podemos passar um repositório em memória.
 
 ```java
 package com.henriquemarino.matchmaking.application.usecases;
 
+import com.henriquemarino.matchmaking.application.commands.JoinMatchCommand;
+import com.henriquemarino.matchmaking.domain.exceptions.MatchNotFoundException;
+import com.henriquemarino.matchmaking.domain.model.Match;
+import com.henriquemarino.matchmaking.domain.model.Player;
 import com.henriquemarino.matchmaking.ports.inbound.JoinMatchUseCase;
 import com.henriquemarino.matchmaking.ports.outbound.DomainEventPublisher;
 import com.henriquemarino.matchmaking.ports.outbound.MatchRepository;
@@ -296,7 +355,6 @@ public class JoinMatchService implements JoinMatchUseCase {
     private final MatchRepository matchRepository;
     private final DomainEventPublisher eventPublisher;
 
-    // Depende apenas de interfaces (portas). Zero acoplamento com infraestrutura física.
     public JoinMatchService(MatchRepository matchRepository, DomainEventPublisher eventPublisher) {
         this.matchRepository = matchRepository;
         this.eventPublisher = eventPublisher;
@@ -307,19 +365,75 @@ public class JoinMatchService implements JoinMatchUseCase {
         Match match = matchRepository.findById(command.matchId())
                 .orElseThrow(() -> new MatchNotFoundException(command.matchId()));
 
-        // Manda o domínio validar e alterar o estado
         match.join(Player.join(command.playerId(), command.skillRating()));
 
-        // Salva e despacha os eventos gerados
         Match saved = matchRepository.save(match);
         eventPublisher.publishAll(match.pullDomainEvents());
-        
+
         return saved;
     }
 }
 ```
 
-### 4. O Adaptador (Funcionário/Conferente): <code>MatchPersistenceAdapter.java</code>
+Perceba a divisão: o caso de uso define a ordem dos passos, mas não decide se o jogador pode entrar. Essa decisão fica no <code>Match</code>.
+
+### 4. Onde o <code>skillRating</code> entra: <code>SkillBasedTeamBalancingStrategy.java</code>
+
+Até aqui, vimos o jogador entrando na partida. Mas matchmaking não é só preencher uma sala; também é montar times minimamente justos.
+
+No projeto, essa regra fica em um serviço de domínio: <code>SkillBasedTeamBalancingStrategy</code>. O <code>Match</code> sabe quando pode começar. A estratégia sabe como distribuir jogadores entre os times.
+
+```java
+public void start(TeamBalancingStrategy balancingStrategy) {
+    if (status != MatchStatus.READY) {
+        throw new InvalidMatchStateException(id, status, "iniciar");
+    }
+
+    balancingStrategy.balance(players);
+    status = MatchStatus.IN_PROGRESS;
+    startedAt = Instant.now();
+    recordEvent(MatchStartedEvent.of(id, startedAt));
+}
+```
+
+E a estratégia usa o <code>skillRating</code> para tentar equilibrar os lados:
+
+```java
+public class SkillBasedTeamBalancingStrategy implements TeamBalancingStrategy {
+
+    @Override
+    public void balance(List<Player> players) {
+        List<Player> ordered = new ArrayList<>(players);
+        ordered.sort(Comparator.comparingInt(Player::skillRating).reversed());
+
+        int skillOfTeamA = 0;
+        int skillOfTeamB = 0;
+        int sizeOfTeamA = 0;
+        int sizeOfTeamB = 0;
+        int halfSize = ordered.size() / 2;
+
+        for (Player player : ordered) {
+            boolean teamAisFull = sizeOfTeamA == halfSize;
+            boolean teamBisFull = sizeOfTeamB == halfSize;
+            boolean goToTeamA = !teamAisFull && (teamBisFull || skillOfTeamA <= skillOfTeamB);
+
+            if (goToTeamA) {
+                player.assignTeam(Team.TEAM_A);
+                skillOfTeamA += player.skillRating();
+                sizeOfTeamA++;
+            } else {
+                player.assignTeam(Team.TEAM_B);
+                skillOfTeamB += player.skillRating();
+                sizeOfTeamB++;
+            }
+        }
+    }
+}
+```
+
+Esse é um bom exemplo de domínio rico sem virar bagunça. A regra de estado continua dentro de <code>Match</code>. A regra de balanceamento, que é uma política própria e pode mudar com o tempo, fica em uma estratégia separada.
+
+### 5. O Adaptador (Funcionário/Conferente): <code>MatchPersistenceAdapter.java</code>
 
 Aqui a infraestrutura entra. Este adaptador fica em <code>adapters/outbound/persistence</code>. Ele implementa a interface <code>MatchRepository</code> (porta) usando a infraestrutura do Spring Data JPA.
 
@@ -356,57 +470,118 @@ public class MatchPersistenceAdapter implements MatchRepository {
         // Salva de fato no banco e converte de volta para o domínio
         return mapper.toDomain(jpaRepository.save(entity));
     }
-    
+
     // ... findById
 }
 ```
 
+### 6. O ganho aparece nos testes
+
+Até aqui, a separação pode parecer um custo: interfaces, mappers, comandos, adaptadores. O ponto em que ela começa a pagar é no teste.
+
+No projeto, os testes dos casos de uso não precisam subir PostgreSQL, container, contexto Spring nem servidor HTTP. Eles montam o caso de uso com implementações simples das portas:
+
+```java
+@BeforeEach
+void setUp() {
+    repository = new InMemoryMatchRepository();
+    publisher = new RecordingEventPublisher();
+
+    createMatch = new CreateMatchService(new MatchFactory(), repository, publisher);
+    joinMatch = new JoinMatchService(repository, publisher);
+    startMatch = new StartMatchService(repository, new SkillBasedTeamBalancingStrategy(), publisher);
+    finishMatch = new FinishMatchService(repository, publisher);
+    getHistory = new GetMatchHistoryService(repository);
+}
+```
+
+Esse teste conta a história inteira da partida:
+
+```java
+@Test
+void fullLifecycleShouldEndInHistory() {
+    Match created = createMatch.create(new CreateMatchCommand(GameMode.SOLO_DUEL));
+    MatchId matchId = created.id();
+    PlayerId playerOne = PlayerId.newId();
+
+    joinMatch.join(new JoinMatchCommand(matchId, playerOne, 100));
+    Match ready = joinMatch.join(new JoinMatchCommand(matchId, PlayerId.newId(), 80));
+    assertThat(ready.status()).isEqualTo(MatchStatus.READY);
+
+    Match started = startMatch.start(new StartMatchCommand(matchId));
+    assertThat(started.status()).isEqualTo(MatchStatus.IN_PROGRESS);
+    assertThat(started.players()).allMatch(p -> p.team().isPlayable());
+
+    Match finished = finishMatch.finish(new FinishMatchCommand(matchId, Team.TEAM_A, "GG"));
+    assertThat(finished.status()).isEqualTo(MatchStatus.FINISHED);
+
+    assertThat(getHistory.getHistory(GetMatchHistoryQuery.forPlayer(playerOne))).hasSize(1);
+}
+```
+
+Esse é o tipo de teste que eu gosto de ver em domínio com regra. Ele lê quase como uma especificação: cria, recebe jogadores, fica pronto, começa, termina e aparece no histórico.
+
 ---
 
-## O Momento da Recompensa: E se precisarmos do Kafka?
+## E se precisarmos do Kafka?
 
-Hoje, o sistema publica eventos localmente (usando o <code>ApplicationEventPublisher</code> do Spring) para que um listener simples grave logs. 
+Hoje, o sistema publica eventos localmente (usando o <code>ApplicationEventPublisher</code> do Spring) para que um listener simples grave logs.
 
 Mas e se amanhã a plataforma crescer e precisarmos mandar esses eventos para o **Apache Kafka** para avisar outros microsserviços (como o de ranking e de conquistas)?
 
-Em uma arquitetura tradicional (acoplada), você teria que varrer seus services, injetar dependências do Kafka, alterar métodos de negócio e lidar com configurações de serialização no meio da lógica da partida.
+Em uma arquitetura acoplada, esse tipo de mudança costuma espalhar Kafka por lugares onde Kafka não deveria aparecer: services de negócio, entidades, métodos que antes só cuidavam da partida.
 
-Na **Arquitetura Hexagonal**, você faz isso em três passos simples, sem tocar no domínio ou na aplicação:
+Aqui, o caminho é mais estreito. O domínio continua registrando eventos. A aplicação continua chamando <code>DomainEventPublisher</code>. O que muda é o adaptador por trás dessa porta:
 
-1. **Crie um novo adaptador de saída**:
-   ```java
-   @Component
-   public class KafkaDomainEventPublisher implements DomainEventPublisher {
-       private final KafkaTemplate<String, Object> kafkaTemplate;
+```java
+@Component
+public class KafkaDomainEventPublisher implements DomainEventPublisher {
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-       public KafkaDomainEventPublisher(KafkaTemplate<String, Object> kafkaTemplate) {
-           this.kafkaTemplate = kafkaTemplate;
-       }
+    public KafkaDomainEventPublisher(KafkaTemplate<String, Object> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
-       @Override
-       public void publishAll(List<DomainEvent> events) {
-           events.forEach(event -> kafkaTemplate.send("matchmaking-events", event));
-       }
-   }
-   ```
-2. **Atualize a injeção na camada de <code>config</code>** para apontar para a nova implementação.
-3. **Pronto**.
+    @Override
+    public void publishAll(List<DomainEvent> events) {
+        events.forEach(event -> kafkaTemplate.send("matchmaking-events", event));
+    }
+}
+```
 
-Nenhum arquivo de regra de negócio <code>Match.java</code> ou caso de uso <code>JoinMatchService.java</code> foi alterado ou recompilado. A receita e a cozinha continuaram as mesmas; mudamos apenas de onde vêm os tomates.
+Depois disso, a configuração escolhe qual implementação será injetada: a atual, baseada em Spring Events, ou a nova, baseada em Kafka. O ponto importante é o que não muda: <code>Match.java</code>, <code>JoinMatchService.java</code> e a porta <code>DomainEventPublisher</code> continuam falando a mesma língua.
+
+<Callout type="warning" title="Produção pede um passo a mais">
+Para um sistema real, eu não publicaria direto para Kafka e dormiria tranquilo. O próximo cuidado seria usar o padrão <strong>Outbox</strong>: salvar o evento na mesma transação da partida e publicar depois. Assim evitamos o caso ruim de salvar o estado no banco e perder o aviso para os outros serviços.
+</Callout>
+
+A receita e a cozinha continuaram as mesmas. Mudamos o fornecedor.
 
 ---
 
 <Callout type="info" title="Os Mappers valem a pena?">
-Ter duas representações do mesmo dado (ex: <code>Match</code> e <code>MatchJpaEntity</code>) exige escrever códigos de mapeamento chatos. No entanto, é esse pedágio inicial que garante que se você decidir trocar o JPA pelo MongoDB ou Cassandra amanhã, o coração das regras do seu jogo não sofrerá um arranhão.
+Ter duas representações do mesmo dado, como <code>Match</code> e <code>MatchJpaEntity</code>, dá trabalho. Você escreve mapper, teste, conversão de ida e volta. A troca é simples: você aceita esse custo para impedir que o modelo de domínio vire uma extensão do Hibernate.
 </Callout>
 
 ## Quando NÃO usar?
 
-Não existe almoço grátis na arquitetura de software. O preço da Arquitetura Hexagonal é a **indireção e a verbosidade**.
+Arquitetura Hexagonal tem preço: mais arquivos, mais interfaces e mais lugares para navegar. Em troca, você ganha isolamento, testes mais leves e liberdade para trocar infraestrutura com menos trauma.
 
-Se você está construindo um sistema simples de cadastro (CRUD) onde a regra é basicamente ler e escrever no banco de dados, aplicar Arquitetura Hexagonal é dar um tiro no próprio pé. Você passará mais tempo escrevendo DTOs, Commands, Entities, Mappers e Interfaces do que resolvendo problemas reais.
+Se o sistema é um CRUD simples, onde a regra é basicamente validar campos e salvar no banco, talvez isso seja arquitetura demais para problema de menos. Você vai gastar energia criando DTOs, commands, entities, mappers e interfaces sem receber tanto de volta.
 
 Use a Arquitetura Hexagonal quando:
 * O domínio tem regras complexas, mutáveis e que precisam de testes unitários rápidos.
 * O ecossistema de infraestrutura ao redor é incerto (o banco pode mudar, a forma de mensageria pode evoluir).
 * Você precisa proteger o ativo mais valioso da empresa: as regras de negócio.
+
+## Resumo de bolso
+
+Se eu tivesse que reduzir tudo a poucas frases, ficaria assim:
+
+* O **domínio** guarda as regras e não importa framework.
+* A **aplicação** coordena os passos, mas não inventa regra de negócio.
+* As **portas** são contratos: o que entra e o que precisa sair.
+* Os **adaptadores** traduzem HTTP, banco, eventos e qualquer outra infraestrutura.
+* A camada de **config** junta as peças sem contaminar o miolo.
+
+No matchmaking, essa separação fica bem concreta: o <code>Match</code> protege o estado da partida, os casos de uso conduzem o fluxo, o JPA fica do lado de fora e os eventos podem sair por Spring Events hoje ou por Kafka amanhã. O desenho só vale a pena porque as regras da partida merecem essa proteção.
