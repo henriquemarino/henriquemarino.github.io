@@ -95,7 +95,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ThemeScript />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <ThemeProvider>
           <Header />
           <main className="min-h-screen pt-[68px]">{children}</main>

@@ -240,11 +240,20 @@
   }
 
   .prose-portfolio :where(pre):not(:where(.not-prose *)) {
-    @apply border border-border bg-code-bg;
+    @apply border border-border bg-code-bg text-text;
+  }
+
+  .prose-portfolio :where(pre code):not(:where(.not-prose *)) {
+    @apply text-text;
   }
 
   .prose-portfolio :where(code):not(:where(pre code)):not(:where(.not-prose *)) {
     @apply rounded bg-code-bg px-1.5 py-0.5 text-highlight;
+  }
+
+  .prose-portfolio code::before,
+  .prose-portfolio code::after {
+    content: "" !important;
   }
 
   .prose-portfolio :where(a):not(:where(.not-prose *)) {
@@ -254,11 +263,11 @@
   /* shiki dual-theme: pick token color per active theme (defaultColor: false) */
   .prose-portfolio code[data-theme*=" "],
   .prose-portfolio code[data-theme*=" "] span {
-    color: var(--shiki-light);
+    color: var(--shiki-light) !important;
   }
 
   .dark .prose-portfolio code[data-theme*=" "],
   .dark .prose-portfolio code[data-theme*=" "] span {
-    color: var(--shiki-dark);
+    color: var(--shiki-dark) !important;
   }
 }
