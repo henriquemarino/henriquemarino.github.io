@@ -1,6 +1,34 @@
 [
   {
     "type": "post",
+    "title": "Arquitetura Hexagonal na prática: decifrando Portas e Adaptadores com um sistema de Matchmaking",
+    "description": "Uma visão prática e sem enrolação de como construir um serviço desacoplado de bancos de dados, frameworks e mensageria usando Java e Spring Boot.",
+    "href": "/blog/arquitetura-hexagonal-na-pratica",
+    "tags": [
+      "Arquitetura",
+      "Hexagonal",
+      "DDD",
+      "Backend"
+    ],
+    "date": "2026-06-05",
+    "readingTime": "13 min de leitura"
+  },
+  {
+    "type": "post",
+    "title": "Como um índice composto transformou uma consulta de segundos em milissegundos",
+    "description": "Um guia prático e sem enrolação simulando um problema real de performance no PostgreSQL, analisando o plano de execução com EXPLAIN e resolvendo queries lentas com índices compostos.",
+    "href": "/blog/como-um-indice-composto-transformou-uma-consulta-de-segundos-em-milissegundos",
+    "tags": [
+      "PostgreSQL",
+      "Bancos de Dados",
+      "Performance",
+      "SQL"
+    ],
+    "date": "2026-06-05",
+    "readingTime": "12 min de leitura"
+  },
+  {
+    "type": "post",
     "title": "Índices PostgreSQL na prática: menos magia, mais plano de execução",
     "description": "Como pensar em índices a partir dos padrões de consulta e do EXPLAIN, sem criar índice à toa.",
     "href": "/blog/postgresql-indices-na-pratica",
@@ -11,32 +39,6 @@
     ],
     "date": "2026-02-20",
     "readingTime": "1 min de leitura"
-  },
-  {
-    "type": "post",
-    "title": "Cache-aside com Redis em APIs backend",
-    "description": "Como aplicar cache-aside com Redis sem esconder bugs de consistência ou criar invalidação impossível.",
-    "href": "/blog/redis-cache-aside",
-    "tags": [
-      "Redis",
-      "Backend",
-      "Performance"
-    ],
-    "date": "2026-02-02",
-    "readingTime": "1 min de leitura"
-  },
-  {
-    "type": "post",
-    "title": "Microsserviços sem teatro: onde a arquitetura começa a pagar a conta",
-    "description": "Quando microsserviços ajudam, quando atrapalham e que sinais observar antes de dividir um sistema.",
-    "href": "/blog/microsservicos-sem-teatro",
-    "tags": [
-      "Arquitetura",
-      "Microsserviços",
-      "Backend"
-    ],
-    "date": "2026-01-18",
-    "readingTime": "2 min de leitura"
   },
   {
     "type": "project",

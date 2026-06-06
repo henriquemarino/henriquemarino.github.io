@@ -1,0 +1,259 @@
+---
+title: "Como um índice composto transformou uma consulta de segundos em milissegundos"
+description: "Um guia prático e sem enrolação simulando um problema real de performance no PostgreSQL, analisando o plano de execução com EXPLAIN e resolvendo queries lentas com índices compostos."
+excerpt: "Criar índice para cada coluna ajuda a resolver uma query lenta? Spoiler: o banco de dados costuma ignorar quase tudo e fazer uma busca lenta. Neste post, simulo um cenário de produção para mostrar como resolver isso de verdade."
+date: "2026-06-05"
+tags: ["PostgreSQL", "Bancos de Dados", "Performance", "SQL"]
+featured: true
+published: true
+---
+
+Para entender como índices de banco de dados funcionam de verdade, o melhor caminho é analisar um problema real. É muito comum a gente escrever uma query que roda instantaneamente na nossa máquina de desenvolvimento, mas que começa a arrastar e demorar segundos para responder quando vai para a produção e o volume de dados aumenta.
+
+Neste post, vou simular um cenário clássico de lentidão: uma listagem de pedidos (`/api/v1/orders`) que começa a ficar lenta conforme a tabela cresce, consumindo muita CPU e demorando segundos. 
+
+Vou guiar você pelo passo a passo para entender esse problema: como abrir o "capô" do banco usando o `EXPLAIN ANALYZE`, por que os índices individuais que a gente costuma criar não funcionam para isso e como resolver o problema criando o índice composto certo.
+
+---
+
+## O Cenário e a Tabela de Pedidos
+
+Para a nossa simulação, vamos imaginar que temos um sistema SaaS onde vários lojistas gerenciam suas vendas. Cada lojista é identificado por um `tenant_id`. 
+
+Para que o teste seja realista, vamos simular que a tabela `orders` (pedidos) já está com **8 milhões de registros**. É um tamanho médio: não é uma base gigante de big data, mas já é o suficiente para punir qualquer consulta que não esteja bem otimizada.
+
+A tabela tem essa cara aqui no PostgreSQL:
+
+```sql
+CREATE TABLE orders (
+    id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    amount DECIMAL(12, 2) NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    payload JSONB
+);
+```
+
+### Como a aplicação acessa esses dados?
+
+Geralmente, quando o lojista entra no painel dele, ele quer ver a lista de pedidos mais recentes. Ou seja, a consulta busca os dados ordenando pela data mais nova (`ORDER BY created_at DESC`). Também é muito comum filtrar esses pedidos por status, como buscar apenas o que está "PENDENTE" (aguardando envio) ou "PAGO".
+
+---
+
+## A Query Lenta
+
+Analisando a aplicação, descobrimos que a consulta que roda por trás dessa listagem é essa aqui:
+
+```sql
+SELECT id, tenant_id, status, created_at, amount, customer_email
+FROM orders
+WHERE tenant_id = 'd3b07384-d113-49c3-a5f1-8d203986a457'
+  AND status = 'PENDING'
+ORDER BY created_at DESC
+LIMIT 50;
+```
+
+A intenção é simples: buscar os 50 pedidos pendentes mais recentes daquele lojista. Em teoria, isso deveria ser instantâneo. Mas na prática, a consulta está demorando mais de 3 segundos e consumindo muita CPU.
+
+---
+
+## Primeira Investigação: Os Índices Existentes
+
+Ao olhar a tabela para ver se o problema era falta de índice, a gente descobre que na verdade já existem índices criados para quase todas as colunas da consulta:
+
+```sql
+-- Índices existentes:
+CREATE INDEX idx_orders_tenant_id ON orders(tenant_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_created_at ON orders(created_at);
+```
+
+Temos um índice para buscar pelo lojista, outro pelo status e outro para ordenar pela data. Se já existem índices para tudo, por que a busca continua lenta? 
+
+Para descobrir o que está acontecendo por baixo dos panos, precisamos olhar o plano de execução da query.
+
+---
+
+## Abrindo o Capô com o EXPLAIN ANALYZE
+
+<Callout type="info" title="O que é o EXPLAIN ANALYZE?">
+O <code>EXPLAIN</code> pede para o banco mostrar o plano de ação que ele desenhou para resolver a query. Quando colocamos o <code>ANALYZE</code> junto, o banco realmente executa a consulta e mostra o tempo real gasto em cada etapa, além de quantas páginas de dados ele precisou ler do disco ou da memória.
+</Callout>
+
+Rodamos a query lenta com o comando `EXPLAIN (ANALYZE, BUFFERS)` para ver os detalhes:
+
+```sql
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT id, tenant_id, status, created_at, amount, customer_email
+FROM orders
+WHERE tenant_id = 'd3b07384-d113-49c3-a5f1-8d203986a457'
+  AND status = 'PENDING'
+ORDER BY created_at DESC
+LIMIT 50;
+```
+
+E o resultado do plano de execução foi esse aqui:
+
+```text
+Limit  (cost=125120.45..125120.58 rows=50 width=118) (actual time=3420.124..3420.210 rows=50 loops=1)
+  Buffers: shared hit=4520 read=145890
+  ->  Sort  (cost=125120.45..125145.45 rows=10000 width=118) (actual time=3420.122..3420.180 rows=50 loops=1)
+        Sort Key: created_at DESC
+        Sort Method: top-N heapsort  Memory: 45kB
+        ->  Bitmap Heap Scan on orders  (cost=450.20..124220.80 rows=10000 width=118) (actual time=120.450..3395.210 rows=12500 loops=1)
+              Recheck Cond: (tenant_id = 'd3b07384-d113-49c3-a5f1-8d203986a457'::uuid)
+              Filter: ((status)::text = 'PENDING'::text)
+              Rows Removed by Filter: 987500
+              Buffers: shared hit=4520 read=145890
+              ->  Bitmap Index Scan on idx_orders_tenant_id  (cost=0.00..447.70 rows=1000000 width=0) (actual time=95.120..95.120 rows=1000000 loops=1)
+                    Index Cond: (tenant_id = 'd3b07384-d113-49c3-a5f1-8d203986a457'::uuid)
+```
+
+Olhando esse resultado, dá para entender exatamente o caminho que o banco fez e onde ele perdeu tempo:
+
+1. **Busca no índice do lojista (`Bitmap Index Scan`)**: O banco usou o índice `idx_orders_tenant_id` para achar os registros daquele lojista. Ele descobriu que esse cliente tinha 1.000.000 de pedidos. Essa etapa levou 95ms.
+2. **Leitura dos dados na tabela física (`Bitmap Heap Scan`)**: Como o índice do lojista só guarda o `tenant_id`, o banco teve que ir na tabela física ler as linhas desse 1 milhão de pedidos para checar se o status era `PENDING`. O log `Buffers: shared hit=4520 read=145890` mostra que ele leu **145.890 páginas** do disco. Como cada página tem 8KB, o banco leu **mais de 1.1 GB de dados do disco**.
+3. **Filtro em memória (`Filter`)**: Com os dados na memória, o banco filtrou as linhas e jogou fora 987.500 registros que não eram `PENDING`, ficando apenas com 12.500.
+4. **Ordenação (`Sort`)**: Por fim, o banco ordenou essas 12.500 linhas sobreviventes por data (`created_at DESC`) usando a memória RAM, e pegou as 50 primeiras por causa do limite.
+
+No total, o banco demorou **3,4 segundos** (`actual time=3420.124ms`). Ele teve que ler mais de 1 GB de dados do disco e fazer a CPU trabalhar ordenando milhares de linhas apenas para devolver 50 registros. Uma baita ineficiência.
+
+---
+
+## Por que os Índices Separados Não Ajudaram?
+
+A pergunta que fica é: por que o banco não usou os índices de `status` ou de `created_at` para ajudar?
+
+O problema é que cada índice individual no banco de dados funciona como uma estrutura isolada. O índice do lojista só sabe encontrar e ordenar por lojista. O de status só sabe achar por status, e o de data só sabe ordenar a tabela inteira por data.
+
+Diante disso, o banco tinha poucas opções:
+
+* **Usar o índice de `created_at`**: Ler a tabela de trás para frente pela data. O problema é que, se o lojista procurado não tiver vendas muito recentes, o banco teria que ler milhões de linhas de outras lojas até encontrar 50 registros válidos daquela loja específica com status pendente.
+* **Tentar combinar os índices existentes**: O banco poderia tentar cruzar os dados do índice de lojista com o índice de status. Mesmo fazendo isso, ele ainda teria que ler os dados do disco e fazer a ordenação na memória no final, porque nenhum desses índices individuais tem a informação de data ordenada de forma combinada.
+* **A escolha do banco**: Ele preferiu usar o índice de lojista para reduzir a busca para 1 milhão de registros, aceitando o custo de ler a tabela física, filtrar o status na mão e ordenar tudo na memória no fim das contas.
+
+Quando combinamos filtros diferentes e ordenação em tabelas grandes, índices individuais simplesmente não dão conta do recado.
+
+---
+
+## A Ideia do Índice Composto
+
+Um **índice composto** nada mais é do que um único índice que guarda o valor de várias colunas de forma ordenada em uma única estrutura.
+
+Para entender como ele funciona, pense em uma **lista telefônica**. Ela é ordenada primeiro pelo **Sobrenome** e, depois, pelo **Nome**:
+
+```text
+- Silva, Carlos
+- Silva, Eduardo
+- Sousa, Ana
+- Sousa, Carlos
+```
+
+* Se você buscar por "Silva, Eduardo", você vai direto ao ponto certo de forma muito rápida.
+* Se você buscar por "Silva", também funciona bem porque todos com esse sobrenome estão agrupados no começo.
+* **Mas**, se você buscar apenas por "Carlos" sem saber o sobrenome, a lista não ajuda em nada. Você teria que ler a lista inteira do começo ao fim (o equivalente a um *Sequential Scan* no banco de dados) para achar todas as pessoas chamadas Carlos, porque a ordenação principal é pelo sobrenome.
+
+No banco de dados é a mesma coisa. A ordem em que você coloca as colunas no índice composto muda completamente o resultado.
+
+### Como escolher a ordem das colunas no índice?
+
+Para criar o índice composto ideal para a sua query, existe uma regra prática muito simples de seguir:
+
+1. **Primeiro**, coloque as colunas usadas nos filtros de **igualdade** (onde você usa o sinal de `=`).
+2. **Depois**, coloque as colunas usadas para **filtros de intervalo** (como `>`, `<`) ou para **ordenação** (`ORDER BY`).
+
+Olhando de volta para a nossa query:
+```sql
+WHERE tenant_id = ? AND status = ? ORDER BY created_at DESC
+```
+
+As colunas `tenant_id` e `status` usam filtros de igualdade (`=`). A coluna `created_at` é usada para a ordenação. Seguindo a regra, a ordem ideal para o nosso índice composto é:
+
+**(tenant_id, status, created_at DESC)**
+
+Com essa estrutura, o banco navega pela árvore do índice até a seção daquele `tenant_id`, entra no subgrupo do `status` e, lá dentro, os registros já estão fisicamente pré-ordenados por data decrescente. O banco de dados só precisa ler os primeiros 50 itens da lista e finalizar a consulta.
+
+---
+
+## Criando a Solução e Limpando a Casa
+
+Criamos o índice composto no PostgreSQL executando este comando:
+
+```sql
+CREATE INDEX idx_orders_tenant_status_created
+ON orders (tenant_id, status, created_at DESC);
+```
+
+### O que fazer com os índices antigos?
+
+Lembre-se de que índices não são de graça. Cada índice novo ocupa espaço em disco e **deixa as escritas mais lentas** (`INSERT`, `UPDATE`, `DELETE`), porque o banco de dados precisa atualizar todos os índices a cada alteração na tabela.
+
+Por isso, depois de criar o índice composto, analisamos os índices antigos e removemos o que ficou redundante:
+
+* **`idx_orders_tenant_id`**: Esse índice individual não é mais necessário. O PostgreSQL consegue usar o início do nosso novo índice composto `(tenant_id, status, created_at DESC)` para buscas que filtrem apenas por `tenant_id`, já que ela é a primeira coluna. Removemos ele sem medo:
+  ```sql
+  DROP INDEX idx_orders_tenant_id;
+  ```
+* **`idx_orders_status`**: Também foi removido, porque buscas filtrando apenas por status raramente acontecem e o índice sozinho não ajudava muito.
+* **`idx_orders_created_at`**: Esse nós mantivemos, porque a aplicação ainda tinha outras telas que mostravam relatórios globais ordenados por data sem filtrar por lojista.
+
+---
+
+## O Resultado Real
+
+Com o novo índice composto no lugar, rodamos novamente o `EXPLAIN (ANALYZE, BUFFERS)` para ver a diferença:
+
+```text
+Limit  (cost=0.43..180.50 rows=50 width=118) (actual time=0.045..0.850 rows=50 loops=1)
+  Buffers: shared hit=54
+  ->  Index Scan using idx_orders_tenant_status_created on orders  (cost=0.43..36000.00 rows=10000 width=118) (actual time=0.043..0.810 rows=50 loops=1)
+        Index Cond: ((tenant_id = 'd3b07384-d113-49c3-a5f1-8d203986a457'::uuid) AND ((status)::text = 'PENDING'::text))
+        Buffers: shared hit=54
+```
+
+A diferença de performance na nossa simulação é impressionante quando colocamos lado a lado:
+
+### Comparativo de Performance
+
+| Métrica | Antes (Índices Isolados) | Depois (Índice Composto) | Diferença |
+| :--- | :--- | :--- | :--- |
+| **Tempo de Execução** | 3.420 ms (3,4 segundos) | 0.85 ms (0.0008 segundos) | **~ 4.000x mais rápido** |
+| **Tipo de Busca** | Bitmap Heap Scan + Sort | Index Scan | Direto no índice |
+| **Leitura de Disco** | 145.890 read (~1.1 GB) | 0 read (RAM Cache) | Disco zerado |
+| **Leitura de RAM (Buffers)** | 4.520 hit | 54 hit | Redução de uso de memória |
+| **Etapa de Ordenação** | top-N heapsort (Memória) | Nenhuma | CPU livre |
+
+O que aconteceu no novo plano de execução:
+
+1. **Busca direto no índice (`Index Scan`)**: O banco parou de vasculhar a tabela física e foi direto no novo índice composto `idx_orders_tenant_status_created`.
+2. **Filtro integrado (`Index Cond`)**: A navegação no índice já filtrou pelo lojista e pelo status ao mesmo tempo.
+3. **Fim da leitura de disco**: O número de buffers necessários para ler caiu de **150.410** para apenas **54**. Como o volume de dados a ser lido agora é mínimo, o PostgreSQL encontrou tudo diretamente no cache da memória RAM (`shared hit=54`), sem precisar ler nada do disco.
+4. **Sem ordenação na CPU**: Como o índice já grava as linhas na ordem que a gente precisa (`created_at DESC`), o banco não precisou fazer nenhuma ordenação na memória. Ele só leu as primeiras 50 linhas e devolveu o resultado.
+
+Com isso, a query passou a rodar em menos de 1ms, acabando com a lentidão e deixando a CPU do servidor tranquila.
+
+---
+
+## O Que Fica de Aprendizado
+
+Se você estiver lidando com lentidão em consultas no seu projeto, leve essas dicas com você:
+
+### 1. Criar índice para cada coluna não funciona
+Evite o hábito de criar um índice simples para cada coluna da tabela achando que o banco vai saber juntar eles depois. Para consultas com filtros combinados e ordenação, índices individuais costumam ser ignorados ou funcionam mal.
+
+### 2. Pense em como os dados são acessados
+Na hora de criar índices, olhe para as queries reais que a sua aplicação faz. Veja quais filtros rodam juntos, quais campos usam igualdade e por qual coluna os dados são ordenados.
+
+### 3. Use o EXPLAIN ANALYZE sempre
+Não tente adivinhar por que uma consulta está demorando. O plano de execução mostra exatamente onde o banco está sofrendo — se é lendo gigabytes de dados do disco desnecessariamente ou se é gastando CPU para ordenar registros em memória.
+
+### 4. Teste com volume realista
+Consultas ruins costumam rodar rápido na nossa máquina de desenvolvimento porque a nossa base local de testes é muito pequena. Sempre que possível, popule sua base local com alguns milhões de registros fictícios para ver como suas queries se comportam de verdade antes de mandar o código para a produção.
+
+---
+
+## Conclusão
+
+Índices compostos são uma solução simples e muito poderosa para resolver lentidões no banco de dados. Ao entender o funcionamento e respeitar a ordem certa das colunas (igualdade primeiro, ordenação e intervalos depois), você consegue otimizar suas consultas, reduzir custos de infraestrutura e melhorar muito a experiência de quem usa a sua aplicação.

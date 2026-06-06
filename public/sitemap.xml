@@ -33,15 +33,15 @@
     <lastmod>2024-06-01</lastmod>
   </url>
   <url>
+    <loc>https://henriquemarino.github.io/blog/arquitetura-hexagonal-na-pratica/</loc>
+    <lastmod>2026-06-05</lastmod>
+  </url>
+  <url>
+    <loc>https://henriquemarino.github.io/blog/como-um-indice-composto-transformou-uma-consulta-de-segundos-em-milissegundos/</loc>
+    <lastmod>2026-06-05</lastmod>
+  </url>
+  <url>
     <loc>https://henriquemarino.github.io/blog/postgresql-indices-na-pratica/</loc>
     <lastmod>2026-02-20</lastmod>
-  </url>
-  <url>
-    <loc>https://henriquemarino.github.io/blog/redis-cache-aside/</loc>
-    <lastmod>2026-02-02</lastmod>
-  </url>
-  <url>
-    <loc>https://henriquemarino.github.io/blog/microsservicos-sem-teatro/</loc>
-    <lastmod>2026-01-18</lastmod>
   </url>
 </urlset>

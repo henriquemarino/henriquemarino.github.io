@@ -6,25 +6,25 @@
     <description>Backend, arquitetura, Java, Node.js, Redis, PostgreSQL e engenharia de software.</description>
     <language>pt-BR</language>
     <item>
+      <title>Arquitetura Hexagonal na prática: decifrando Portas e Adaptadores com um sistema de Matchmaking</title>
+      <link>https://henriquemarino.github.io/blog/arquitetura-hexagonal-na-pratica/</link>
+      <guid>https://henriquemarino.github.io/blog/arquitetura-hexagonal-na-pratica/</guid>
+      <pubDate>Fri, 05 Jun 2026 03:00:00 GMT</pubDate>
+      <description>Uma visão prática e sem enrolação de como construir um serviço desacoplado de bancos de dados, frameworks e mensageria usando Java e Spring Boot.</description>
+    </item>
+    <item>
+      <title>Como um índice composto transformou uma consulta de segundos em milissegundos</title>
+      <link>https://henriquemarino.github.io/blog/como-um-indice-composto-transformou-uma-consulta-de-segundos-em-milissegundos/</link>
+      <guid>https://henriquemarino.github.io/blog/como-um-indice-composto-transformou-uma-consulta-de-segundos-em-milissegundos/</guid>
+      <pubDate>Fri, 05 Jun 2026 03:00:00 GMT</pubDate>
+      <description>Um guia prático e sem enrolação simulando um problema real de performance no PostgreSQL, analisando o plano de execução com EXPLAIN e resolvendo queries lentas com índices compostos.</description>
+    </item>
+    <item>
       <title>Índices PostgreSQL na prática: menos magia, mais plano de execução</title>
       <link>https://henriquemarino.github.io/blog/postgresql-indices-na-pratica/</link>
       <guid>https://henriquemarino.github.io/blog/postgresql-indices-na-pratica/</guid>
       <pubDate>Fri, 20 Feb 2026 03:00:00 GMT</pubDate>
       <description>Como pensar em índices a partir dos padrões de consulta e do EXPLAIN, sem criar índice à toa.</description>
-    </item>
-    <item>
-      <title>Cache-aside com Redis em APIs backend</title>
-      <link>https://henriquemarino.github.io/blog/redis-cache-aside/</link>
-      <guid>https://henriquemarino.github.io/blog/redis-cache-aside/</guid>
-      <pubDate>Mon, 02 Feb 2026 03:00:00 GMT</pubDate>
-      <description>Como aplicar cache-aside com Redis sem esconder bugs de consistência ou criar invalidação impossível.</description>
-    </item>
-    <item>
-      <title>Microsserviços sem teatro: onde a arquitetura começa a pagar a conta</title>
-      <link>https://henriquemarino.github.io/blog/microsservicos-sem-teatro/</link>
-      <guid>https://henriquemarino.github.io/blog/microsservicos-sem-teatro/</guid>
-      <pubDate>Sun, 18 Jan 2026 03:00:00 GMT</pubDate>
-      <description>Quando microsserviços ajudam, quando atrapalham e que sinais observar antes de dividir um sistema.</description>
     </item>
   </channel>
 </rss>
