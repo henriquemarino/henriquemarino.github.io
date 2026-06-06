@@ -47,7 +47,10 @@ export function MermaidDiagram({ chart }: { chart: string }) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    const timer = setTimeout(() => {
+      setMounted(true)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [])
 
   // Defer rendering until the diagram is near the viewport.
@@ -215,7 +218,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
   return (
     <div ref={wrapperRef} className="not-prose relative group my-6 overflow-hidden rounded-lg border border-border bg-light/70 p-4">
       {/* Zoom / Maximize button */}
-      {!error && visible && containerRef.current && (
+      {!error && visible && svgHtml && (
         <button
           onClick={openModal}
           className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border bg-background/80 hover:bg-background text-xs font-medium text-text-light hover:text-text opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 shadow-sm"
